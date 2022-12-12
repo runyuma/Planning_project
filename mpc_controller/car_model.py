@@ -1,12 +1,8 @@
 import numpy as np
-car_param ={"dt":0.2,   # time step
-            "lr":1.25,
-            "L":2.5,    # lr+lf
-            }
 
 class kinematic_bicycle_model():
-    def __int__(self,param):
-        self.param = param
+    def __int__(self):
+        pass
     def linear_discrete_model(self,v0,phi0,delta0):
         # for linear MPC, based on kinematic bicycle model
         # calculate A,B,C metrix x = Ax + Bu +C
@@ -31,12 +27,12 @@ class kinematic_bicycle_model():
                       -dt * v0 * delta0 / (L * np.cos(delta0) ** 2)])
 
         return A, B, C
-    def nonlinear_discrete_model(self,x,v,phi,delta,u):
+    def nonlinear_discrete_model(self,x,v,phi,delta,u,param):
         # for nonlinear MPC, based on kinematic bicycle model
         # x = [x,y]; u = [a,delta]
-        dt = self.param["dt"]
-        lr = self.param["lr"]
-        L = self.param["L"]  # lr+lf
+        dt = param["dt"]
+        lr = param["lr"]
+        L = param["L"]  # lr+lf
         tri = np.array([[np.cos(phi[0]+np.arctan(np.tan(u[1])*lr/L))],
                         [np.sin(phi[0]+np.arctan(np.tan(u[1])*lr/L))]])
         x_ = x + dt * tri @ v
@@ -46,4 +42,4 @@ class kinematic_bicycle_model():
         return x_,v_,phi_,delta_
 
 if __name__ == '__main__':
-    model = kinematic_bicycle_model(car_param)
+    model = kinematic_bicycle_model()
