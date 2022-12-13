@@ -3,14 +3,14 @@ import numpy as np
 class kinematic_bicycle_model():
     def __int__(self):
         pass
-    def linear_discrete_model(self,v0,phi0,delta0):
+    def linear_discrete_model(self,v0,phi0,delta0,param):
         # for linear MPC, based on kinematic bicycle model
         # calculate A,B,C metrix x = Ax + Bu +C
         # x = [x,y,v,phi]; u = [a,delta]
         # linearize around v0,phi0,delta0
         # assume sin(beta) = tan(beta)
-        dt = self.param["dt"]
-        L = self.param["L"] # lr+lf
+        dt = param["dt"]
+        L = param["L"] # lr+lf
         A = np.array([[1.0, 0.0, dt * np.cos(phi0), - dt * v0 * np.sin(phi0)],
                       [0.0, 1.0, dt * np.sin(phi0), dt * v0 * np.cos(phi0)],
                       [0.0, 0.0, 1.0, 0.0],
@@ -38,7 +38,7 @@ class kinematic_bicycle_model():
         x_ = x + dt * tri @ v
         phi_ = phi + dt * v * np.sin(np.arctan(np.tan(u[1])*lr/L))/lr
         v_ = v+dt*u[0]
-        delta_ = u[0]
+        delta_ = u[1]
         return x_,v_,phi_,delta_
 
 if __name__ == '__main__':

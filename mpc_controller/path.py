@@ -16,8 +16,8 @@ class PATH:
         :return: nearest index, lateral distance to ref point
         """
 
-        dx = [robo_state.x - x for x in self.cx[self.ind_old: (self.ind_old + param.N_IND)]]
-        dy = [robo_state.y - y for y in self.cy[self.ind_old: (self.ind_old + param.N_IND)]]
+        dx = [robo_state.x - x for x in self.cx[self.ind_old: (self.ind_old + param["N_IND"])]]
+        dy = [robo_state.y - y for y in self.cy[self.ind_old: (self.ind_old + param["N_IND"])]]
         dist = np.hypot(dx, dy)
         # return x2+y2
 
