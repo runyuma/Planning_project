@@ -1,5 +1,5 @@
 import numpy as np
-
+import math
 class kinematic_bicycle_model():
     def __int__(self):
         pass
@@ -33,8 +33,8 @@ class kinematic_bicycle_model():
         dt = param["dt"]
         lr = param["lr"]
         L = param["L"]  # lr+lf
-        tri = np.array([[np.cos(phi[0]+np.arctan(np.tan(u[1])*lr/L))],
-                        [np.sin(phi[0]+np.arctan(np.tan(u[1])*lr/L))]])
+        tri = np.array([[math.cos(phi[0]+math.atan(math.tan(u[1])*lr/L))],
+                        [math.sin(phi[0]+math.atan(math.tan(u[1])*lr/L))]])
         x_ = x + dt * tri @ v
         phi_ = phi + dt * v * np.sin(np.arctan(np.tan(u[1])*lr/L))/lr
         v_ = v+dt*u[0]

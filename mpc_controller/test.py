@@ -30,7 +30,8 @@ state = mpc_plannner.ROBOT_STATE(x=10.0, y=7.0, yaw=2.09, v=0.0)
 ref,ind = mpc_plannner.get_reftraj(state,path1,speed_profile,param)
 # mpc_plot.plot_ref(x,y,yaw,ref,speed_profile)
 model = car_model.kinematic_bicycle_model()
-mpc_plannner.nonlinear_mpc_control(ref,state,model,param)
+x_pred,u = mpc_plannner.linear_mpc_control(ref,state,model,param)
+mpc_plot.plot_mpc(x,y,yaw,ref,x_pred,u,speed_profile)
 # done = 0
 # while not done:
 #     ref,ind = mpc_plannner.get_reftraj(state,path1,speed_profile,param)
