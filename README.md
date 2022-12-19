@@ -16,7 +16,7 @@ Solve parking problem in an unstructured (i.e. no specific traffic rules for the
   - `/complex_parking_lot`    : defines the complex (harder) parking place finding environment
   - `/simple_parking_lot`     : defines the simple (easier) parking place finding environment
   - `/common`                 : shared files for the two environments
-- `/car_model`                : where the Toyota Prius' bicycle model is defined
+- 'scenarios'                 : each scenario of parking is shown
 
 ## TODO:
 - modify `SimpleUrdfEnv` and `ComplexUrdfEnv` in `urdf_simple_env.py` and `urdf_complex_env.py`
