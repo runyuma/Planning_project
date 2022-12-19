@@ -4,22 +4,46 @@ class kinematic_bicycle_model():
     def __int__(self):
         pass
     def linear_discrete_model(self,v0,phi0,delta0,param):
+        # # for linear MPC, based on kinematic bicycle model
+        # # calculate A,B,C metrix x = Ax + Bu +C
+        # # x = [x,y,v,phi]; u = [a,delta]
+        # # linearize around v0,phi0,delta0
+        # # assume sin(beta) = tan(beta)
+        # dt = param["dt"]
+        # L = param["L"] # lr+lf
+        # A = np.array([[1.0, 0.0, dt * np.cos(phi0), - dt * v0 * np.sin(phi0)],
+        #               [0.0, 1.0, dt * np.sin(phi0), dt * v0 * np.cos(phi0)],
+        #               [0.0, 0.0, 1.0, 0.0],
+        #               [0.0, 0.0, dt * np.tan(delta0) / L, 1.0]])
+        #
+        # B = np.array([[0.0, 0.0],
+        #               [0.0, 0.0],
+        #               [dt, 0.0],
+        #               [0.0, dt * v0 / (L * np.cos(delta0) ** 2)]])
+        #
+        # C = np.array([dt * v0 * np.sin(phi0) * phi0,
+        #               -dt * v0 * np.cos(phi0) * phi0,
+        #               0.0,
+        #               -dt * v0 * delta0 / (L * np.cos(delta0) ** 2)])
+        #
+        # return A, B, C
         # for linear MPC, based on kinematic bicycle model
         # calculate A,B,C metrix x = Ax + Bu +C
-        # x = [x,y,v,phi]; u = [a,delta]
+        # x = [x,y,v,phi]; u = [a,sin(beta)]
         # linearize around v0,phi0,delta0
         # assume sin(beta) = tan(beta)
         dt = param["dt"]
-        L = param["L"] # lr+lf
+        lr = param["lr"]
+        L = param["L"]  # lr+lf
         A = np.array([[1.0, 0.0, dt * np.cos(phi0), - dt * v0 * np.sin(phi0)],
                       [0.0, 1.0, dt * np.sin(phi0), dt * v0 * np.cos(phi0)],
                       [0.0, 0.0, 1.0, 0.0],
                       [0.0, 0.0, dt * np.tan(delta0) / L, 1.0]])
 
-        B = np.array([[0.0, 0.0],
-                      [0.0, 0.0],
+        B = np.array([[0.0, -dt * v0 * np.sin(phi0)],
+                      [0.0, dt * v0 * np.cos(phi0)],
                       [dt, 0.0],
-                      [0.0, dt * v0 / (L * np.cos(delta0) ** 2)]])
+                      [0.0, dt * v0 /lr]])
 
         C = np.array([dt * v0 * np.sin(phi0) * phi0,
                       -dt * v0 * np.cos(phi0) * phi0,

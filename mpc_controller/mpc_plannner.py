@@ -157,5 +157,44 @@ def nonlinear_mpc_control(z_ref,initial_state,model,param):
         print("Cannot solve nonlinear mpc!")
 
     return x,v,phi,delta,u
+def linear_mpc_control(z_ref, initial_state, model, param):
+    # todo
+    T = param["N"]
+    Q = param["Q"]
+    R = param["R"]
+
+    x = cvxpy.Variable((4, T + 1))
+    u = cvxpy.Variable((2, T + 1))
+
+    cost = 0.
+    constraints = []
+
+    x0 = np.array([initial_state.x, initial_state.y,initial_state.v,initial_state.yaw])
+    delta0 = np.array([initial_state.delta])
+    constraints += [x[:, 0] == x0]
+
+    for k in range(T):
+        #
+        A,B,C = model.linear_discrete_model(initial_state.v,initial_state.yaw,initial_state.delta,param)
+        constraints += [x[:, k + 1] == A@x[:, k]+B@u[:, k]+C]
+        cost += cvxpy.quad_form(x[:, k] - z_ref[:, k], Q)
+        if k == 0:
+            cost += cvxpy.quad_form(u[:1, k], R[0:1, 0:1])
+            cost += cvxpy.quad_form(u[1:2, k] - delta0, R[1:2, 1:2])
+        else:
+            cost += cvxpy.quad_form(u[:1, k], R[0:1, 0:1])
+            cost += cvxpy.quad_form(u[1:2, k] - u[1:2, k - 1], R[1:2, 1:2])
+    cost += cvxpy.quad_form(x[:, T] - z_ref[:, T], Q)
+    # solve
+    prob = cvxpy.Problem(cvxpy.Minimize(cost), constraints)
+    prob.solve(solver=cvxpy.OSQP)
+    if prob.status == cvxpy.OPTIMAL or \
+            prob.status == cvxpy.OPTIMAL_INACCURATE:
+        x = x.value
+        u = u.value
+    else:
+        print("Cannot solve nonlinear mpc!")
+
+    return x,u
 
 
