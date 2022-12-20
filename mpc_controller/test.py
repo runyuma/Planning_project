@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import path
 import mpc_plannner
@@ -13,26 +14,66 @@ test_param ={"N":6,   # Predict Horizon
         "N_IND":10, # search index number
         "lr":1.25,
         "L":2.5,    # lr+lf
-        "Q":np.diag([10,10,5,10]),
-        "R":np.diag([5,5]),
+        "Q":np.diag([10,10,5,50]),
+        "R":np.diag([5,15]),
+        "start_vel":1,
         "max_vel":10,
         "min_vel":-5,
-        "max_steer":np.deg2rad(20),
-        "min_steer":-np.deg2rad(20),
+        "max_steer":0.2,
+        "min_steer":-0.2,
         "max_acc":1,
         "min_acc":-1,
+        "max_dsteer":0.2,
+        "min_dsteer":-0.2,
         }
 path1 = path.PATH(x,y,yaw)
 speed_profile = mpc_plannner.get_velprofile(path1.cx,path1.cy,path1.cyaw,3.)
 # mpc_plot.plot_velprof(x,y,yaw,speed_profile)
 
 state = mpc_plannner.ROBOT_STATE(x=10.0, y=7.0, yaw=2.09, v=0.0)
-ref,ind = mpc_plannner.get_reftraj(state,path1,speed_profile,test_param)
-# mpc_plot.plot_ref(x,y,yaw,ref,speed_profile)
+
 model = car_model.kinematic_bicycle_model()
-x_pred,u = mpc_plannner.linear_mpc_control(ref,state,model,test_param)
-mpc_plot.plot_mpc(x,y,yaw,ref,x_pred,u,speed_profile)
-# done = 0
-# while not done:
-#     ref,ind = mpc_plannner.get_reftraj(state,path1,speed_profile,param)
-#     #todo:nonlinear mpc control
+time = 0
+x_rec = []
+y_rec = []
+yaw_rec = []
+v_rec = []
+t_rec = []
+d_rec = []
+a_rec = []
+while time < 60:
+    ref,ind = mpc_plannner.get_reftraj(state,path1,speed_profile,test_param)
+    x_pred, u = mpc_plannner.linear_mpc_control(ref, state, model, test_param)
+    acc = u[0][0]
+    delta = car_model.sbeta2delta(u[1][0], test_param)
+    state.update(acc,delta,param=test_param)
+    time += test_param["dt"]
+
+    plt.cla()
+    mpc_plot.plot_mpc(x, y, yaw, ref, x_pred, u, speed_profile)
+    mpc_plot.draw_car(state.x, state.y, state.yaw,delta)
+    plt.xlim(0,50)
+    plt.ylim(-15, 35)
+    plt.title("Linear MPC, " +"v = "+ str(state.v)+"\n delta = "+str(delta))
+    plt.pause(0.01)
+    d_rec.append(delta)
+    x_rec.append([state.x,ref[0][0]])
+    y_rec.append([state.y, ref[1][0]])
+    v_rec.append([state.v, ref[2][0]])
+    yaw_rec.append([state.yaw, ref[3][0]])
+    # print(state.yaw,ref[3][0])
+
+plt.cla()
+plt.subplot(2,2,1)
+plt.plot(np.array(x_rec)[:,0])
+plt.plot(np.array(x_rec)[:,1])
+plt.subplot(2,2,2)
+plt.plot(np.array(y_rec)[:,0])
+plt.plot(np.array(y_rec)[:,1])
+plt.subplot(2,2,3)
+plt.plot(np.array(v_rec)[:,0])
+plt.plot(np.array(v_rec)[:,1])
+plt.subplot(2,2,4)
+plt.plot(np.array(yaw_rec)[:,0])
+plt.plot(np.array(yaw_rec)[:,1])
+plt.show()

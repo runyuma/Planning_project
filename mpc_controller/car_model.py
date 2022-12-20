@@ -49,7 +49,6 @@ class kinematic_bicycle_model():
                       -dt * v0 * np.cos(phi0) * phi0,
                       0.0,
                       -dt * v0 * delta0 / (L * np.cos(delta0) ** 2)])
-
         return A, B, C
     def nonlinear_discrete_model(self,x,v,phi,delta,u,param):
         # for nonlinear MPC, based on kinematic bicycle model
@@ -64,6 +63,18 @@ class kinematic_bicycle_model():
         v_ = v+dt*u[0]
         delta_ = u[1]
         return x_,v_,phi_,delta_
-
+def sbeta2delta(sin_beta,param):
+    lr = param["lr"]
+    L = param["L"]
+    beta = np.arcsin(sin_beta)
+    tandelta = np.tan(beta)*L/lr
+    delta = np.arctan(tandelta)
+    return delta
+def delta2sbeta(delta,param):
+    lr = param["lr"]
+    L = param["L"]
+    tanbeta = np.tan(delta)*lr/L
+    sin_beta = np.sin(np.arctan(tanbeta))
+    return sin_beta
 if __name__ == '__main__':
     model = kinematic_bicycle_model()
