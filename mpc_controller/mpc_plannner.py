@@ -32,7 +32,13 @@ class ROBOT_STATE():
         self.v = v
         self.delta = delta
         #todo:delta
-    def update(self, acc, delta,param):
+    def state_update(self, acc, delta,param):
+        """
+        update the state of the robot
+        :param acc: acceleration
+        :param delta: steering angle
+        :param param: model parameters
+        """
         L = param["L"]
         dt = param["dt"]
         beta = np.arctan(np.tan(delta)*param["lr"]/L)
@@ -109,7 +115,7 @@ def get_reftraj(robot_state,ref_path,vel_profile,param):
     length = ref_path.length
     start_vel = param["start_vel"]
 
-    ind, _ = ref_path.nearest_index(robot_state,param)
+    ind, err,theta_err = ref_path.nearest_index(robot_state,param)
 
     z_ref[0, 0] = ref_path.cx[ind]
     z_ref[1, 0] = ref_path.cy[ind]
@@ -126,8 +132,14 @@ def get_reftraj(robot_state,ref_path,vel_profile,param):
         z_ref[1, i] = ref_path.cy[index]
         z_ref[2, i] = vel_profile[index]
         z_ref[3, i] = ref_path.cyaw[index]
+    if z_ref[2, 0] != 0:
+        direction = np.sign(z_ref[2, 0])
+    else:
+        indx = min(ind+1, length - 1)
+        direction = np.sign(vel_profile[indx])
 
-    return z_ref, ind
+    return z_ref, ind, direction
+
 def nonlinear_mpc_control(z_ref,initial_state,model,param):
     #todo
     T = param["N"]
@@ -185,7 +197,7 @@ def nonlinear_mpc_control(z_ref,initial_state,model,param):
         print("Cannot solve nonlinear mpc!")
     return x,v,phi,delta,u
 
-def linear_mpc_control(z_ref, initial_state, model, param):
+def linear_mpc_control(z_ref, initial_state,direction, model, param):
     # todo
     start_vel = param["start_vel"]
     T = param["N"]
@@ -202,19 +214,20 @@ def linear_mpc_control(z_ref, initial_state, model, param):
     delta0 = np.array([initial_state.delta])
     constraints += [x[:, 0] == x0]
 
-    if abs(initial_state.v) == 0 and z_ref[2][0] == 0:
-        v0 = start_vel * np.sign(z_ref[2][2])
+    # if abs(initial_state.v) == 0 and z_ref[2][0] == 0:
+    if abs(initial_state.v) <= 0.1 and z_ref[2][0] == 0:
+        v0 = start_vel * direction
         print("starting acc")
     else:
         v0 = initial_state.v
     A, B, C = model.linear_discrete_model(v0, initial_state.yaw, initial_state.delta, param)
     sbeta0 = car_model.delta2sbeta(initial_state.delta,param)
+    # in case of angle overflow
     for i in range(T + 1):
         if abs(initial_state.yaw-z_ref[3][i])>=np.pi:
             z_ref[3][i] = z_ref[3][i] + 2*np.pi*np.sign(initial_state.yaw-z_ref[3][i])
 
     for k in range(T):
-        #
         constraints += [x[:, k + 1] == A@x[:, k]+B@u[:, k]+C]
         cost += cvxpy.quad_form(x[:, k] - z_ref[:, k], Q)
         if k == 0:

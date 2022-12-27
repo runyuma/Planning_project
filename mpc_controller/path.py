@@ -34,4 +34,15 @@ class PATH:
         er = np.dot(vec_target_2_rear.T, rear_axle_vec_rot_90)
         er = er[0][0]
 
-        return ind, er
+        theta = robo_state.yaw
+        theta_p = self.cyaw[ind]
+        theta_e = pi_2_pi(theta - theta_p)
+
+        return ind, er,theta_e
+def pi_2_pi(angle):
+    if angle > np.pi:
+        return angle - 2.0 * np.pi
+
+    if angle < -np.pi:
+        return angle + 2.0 * np.pi
+    return angle
