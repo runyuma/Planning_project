@@ -94,11 +94,16 @@ def get_velprofile(cx, cy, cyaw, target_speed):
                     else:
                         speed_profile[i - j] = -j * 0.2
                         speed_profile[i + j] = 0.2 * j
+    for j in range(int(target_speed/0.2)):
+        if direction[1] > 0:
+            speed_profile[j] = j * 0.2
+        else:
+            speed_profile[j] = -j * 0.2
     for j in range(int(target_speed / 0.2)):
-        if direction[i] > 0:
+        if direction[len(cx)-2] > 0:
             speed_profile[len(cx) - j-1] = j * 0.2
         else:
-            speed_profile[i - j-1] = -j * 0.2
+            speed_profile[len(cx) - j-1] = -j * 0.2
 
     speed_profile[0] = 0.0
     speed_profile[-1] = 0.0
