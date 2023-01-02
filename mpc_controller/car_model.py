@@ -4,32 +4,14 @@ class kinematic_bicycle_model():
     def __int__(self):
         pass
     def linear_discrete_model(self,v0,phi0,delta0,param):
-        # # for linear MPC, based on kinematic bicycle model
-        # # calculate A,B,C metrix x = Ax + Bu +C
-        # # x = [x,y,v,phi]; u = [a,delta]
-        # # linearize around v0,phi0,delta0
-        # # assume sin(beta) = tan(beta)
-        # dt = param["dt"]
-        # L = param["L"] # lr+lf
-        # A = np.array([[1.0, 0.0, dt * np.cos(phi0), - dt * v0 * np.sin(phi0)],
-        #               [0.0, 1.0, dt * np.sin(phi0), dt * v0 * np.cos(phi0)],
-        #               [0.0, 0.0, 1.0, 0.0],
-        #               [0.0, 0.0, dt * np.tan(delta0) / L, 1.0]])
-        #
-        # B = np.array([[0.0, 0.0],
-        #               [0.0, 0.0],
-        #               [dt, 0.0],
-        #               [0.0, dt * v0 / (L * np.cos(delta0) ** 2)]])
-        #
-        # C = np.array([dt * v0 * np.sin(phi0) * phi0,
-        #               -dt * v0 * np.cos(phi0) * phi0,
-        #               0.0,
-        #               -dt * v0 * delta0 / (L * np.cos(delta0) ** 2)])
-        #
-        # return A, B, C
-        # for linear MPC, based on kinematic bicycle model
-        # calculate A,B,C metrix x = Ax + Bu +C
-        # x = [x,y,v,phi]; u = [a,sin(beta)]
+        """
+        for linear MPC, based on kinematic bicycle model,calculate A,B,C metrix x = Ax + Bu +C
+        :param v0: speed
+        :param phi0: angle of vehicle
+        :param delta0: steering angle
+        :param param: mpc&model parameters
+        :return: A, B, C
+        """
         # linearize around v0,phi0,delta0
         # assume sin(beta) = tan(beta)
         dt = param["dt"]
@@ -40,7 +22,7 @@ class kinematic_bicycle_model():
                       [0.0, 0.0, 1.0, 0.0],
                       [0.0, 0.0, dt * np.tan(delta0) / L, 1.0]])
 
-        B = np.array([[0.0, -dt * v0 * np.sin(phi0)],
+        B = np.array([[0.0,-dt * v0 * np.sin(phi0)],
                       [0.0, dt * v0 * np.cos(phi0)],
                       [dt, 0.0],
                       [0.0, dt * v0 /lr]])
@@ -64,6 +46,12 @@ class kinematic_bicycle_model():
         delta_ = u[1]
         return x_,v_,phi_,delta_
 def sbeta2delta(sin_beta,param):
+    """
+    change sin_beta to delta
+    :param sin_beta: sin_beta
+    :param param: mpc&model parameters
+    :return: delta
+    """
     lr = param["lr"]
     L = param["L"]
     beta = np.arcsin(sin_beta)
@@ -71,6 +59,12 @@ def sbeta2delta(sin_beta,param):
     delta = np.arctan(tandelta)
     return delta
 def delta2sbeta(delta,param):
+    """
+    change delta to sin_beta
+    :param delta: delta
+    :param param: mpc&model parameters
+    :return: sin_beta
+    """
     lr = param["lr"]
     L = param["L"]
     tanbeta = np.tan(delta)*lr/L
