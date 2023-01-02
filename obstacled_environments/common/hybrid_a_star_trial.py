@@ -46,6 +46,13 @@ class C:  # Parameter config
     STEER_ANGLE_COST = 1.0  # steer angle penalty cost
     H_COST = 15.0  # Heuristic cost penalty cost
 
+    # GEAR_COST = 100.0  # switch back penalty cost
+    # BACKWARD_COST = 2.0  # backward penalty cost
+    # STEER_CHANGE_COST = 5.0  # steer angle change penalty cost
+    # STEER_ANGLE_COST = 1.0  # steer angle penalty cost
+    # H_COST = 15.0  # Heuristic cost penalty cost
+
+
     # # RF = 4.5  # [m] distance from rear to vehicle front end of vehicle
     # RF = 3.45
     # # RB = 1.0  # [m] distance from rear to vehicle back end of vehicle
@@ -423,13 +430,13 @@ def hybrid_astar_planning(sx, sy, syaw, gx, gy, gyaw, ox, oy, xyreso, yawreso):
 
     hmap = calc_holonomic_heuristic_with_obstacle(ngoal, P.ox, P.oy, P.xyreso, 0.1) # 最后一个参数rr 1.0->0.1
     
-    print(hmap[nstart.xind][nstart.yind])
+    # print(hmap[nstart.xind][nstart.yind])
     
     steer_set, direc_set = calc_motion_set()
     open_set, closed_set = {calc_index(nstart, P): nstart}, {}
 
-    print(calc_index(ngoal, P))
-    print(calc_index(nstart, P))
+    # print(calc_index(ngoal, P))
+    # print(calc_index(nstart, P))
 
     qp = QueuePrior()
     qp.put(calc_index(nstart, P), calc_hybrid_cost(nstart, hmap, P))

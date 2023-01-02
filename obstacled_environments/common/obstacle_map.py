@@ -146,13 +146,13 @@ def get_env_simple(reso):
             oy.append(j)
 
     # obstacle 3 
-    for i in np.arange(4.0,10.0,reso):
+    for i in np.arange(4.0,5.0,reso):
         for j in np.arange(1.0,3.0,reso):
             ox.append(i)
             oy.append(j)
 
     # obstacle 4
-    for i in np.arange(-4.0,10.0,reso):
+    for i in np.arange(-4.0,4.0,reso):
         for j in np.arange(-2.0,-1.0,reso):
             ox.append(i)
             oy.append(j)
