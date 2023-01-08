@@ -33,6 +33,7 @@ class Node0:
 class C:  # Parameter config
     PI = math.pi
 
+    # XY_RESO = 0.1  # [m]
     XY_RESO = 0.1  # [m]
     YAW_RESO = np.deg2rad(15.0)  # [rad]
     MOVE_STEP = 0.04  # [m] path interporate resolution
@@ -423,7 +424,13 @@ def hybrid_astar_planning(sx, sy, syaw, gx, gy, gyaw, ox, oy, xyreso, yawreso):
 
     hmap = calc_holonomic_heuristic_with_obstacle(ngoal, P.ox, P.oy, P.xyreso, 0.1) # 最后一个参数rr 1.0->0.1
     
-    print(hmap[nstart.xind][nstart.yind])
+    print(nstart.xind-P.minx)
+    print(nstart.yind-P.miny)
+    
+    print(ngoal.xind-P.minx)
+    print(ngoal.yind-P.miny)
+    
+    print(hmap[nstart.xind-P.minx][nstart.yind-P.miny])
     
     steer_set, direc_set = calc_motion_set()
     open_set, closed_set = {calc_index(nstart, P): nstart}, {}
@@ -437,13 +444,14 @@ def hybrid_astar_planning(sx, sy, syaw, gx, gy, gyaw, ox, oy, xyreso, yawreso):
     while True:
         if not open_set:
             return None
+                                     # 开始执行A*
+        ind = qp.get()               # 从alive的node中取出第一个
+        n_curr = open_set[ind] 
+        closed_set[ind] = n_curr     # 放到visited的字典中
+        open_set.pop(ind)            # 从alive中将其（已经visited的node）删掉
 
-        ind = qp.get()
-        n_curr = open_set[ind]
-        closed_set[ind] = n_curr
-        open_set.pop(ind)
-
-        update, fpath = update_node_with_analystic_expantion(n_curr, ngoal, P)
+        update, fpath = update_node_with_analystic_expantion(n_curr, ngoal, P) 
+        # 如果能够解析展开，就用reed-shepp在这个configuration处附近展开（判断依据貌似是当前点到goal之间能够形成无障碍的rs曲线）
 
         if update:
             fnode = fpath
@@ -474,9 +482,9 @@ def hybrid_astar_planning(sx, sy, syaw, gx, gy, gyaw, ox, oy, xyreso, yawreso):
 if __name__=='__main__':
 
     sx, sy, syaw0 = 0.0, 0.0, np.deg2rad(0.0)
-    gx, gy, gyaw0 = 2.75, 1.75, np.deg2rad(0.0)
+    gx, gy, gyaw0 = 2.75, 0.0, np.deg2rad(0.0)
 
-    reso = 0.1
+    reso = 0.2
     ox,oy = get_env_simple(reso)
 
     # rr = 0.1 # car radius

@@ -88,7 +88,8 @@ def get_motion():
 
 def calc_obsmap(ox, oy, rr, P):
     obsmap = [[False for _ in range(P.yw)] for _ in range(P.xw)]
-
+    print(rr)
+    print(P.reso)
     for x in range(P.xw):
         xx = x + P.minx
         for y in range(P.yw):
