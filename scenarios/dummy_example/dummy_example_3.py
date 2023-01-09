@@ -46,7 +46,7 @@ def run_prius(n_steps=1000, render=False, goal=True, obstacles=True):
     for i in range(n_steps):
         ob, _, _, _ = env.step(action)
         # if ob['robot_0']['joint_state']['steering'] > 0.2:
-        #     action[1] = 0
+        action[0] = i
         history.append(ob)
     env.close()
     return history

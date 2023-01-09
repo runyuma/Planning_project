@@ -37,19 +37,19 @@ class C:  # Parameter config
     H_COST = 15.0  # Heuristic cost penalty cost
 
     # RF = 4.5  # [m] distance from rear to vehicle front end of vehicle
-    RF = 3.45
+    RF = 3.45 * 0.2
     # RB = 1.0  # [m] distance from rear to vehicle back end of vehicle
-    RB = 0.6
+    RB = 0.6  * 0.2
     # W = 3.0  # [m] width of vehicle
-    W = 1.8 # chasis is 1.7526
+    W = 1.8 * 0.2 # chasis is 1.7526
     # WD = 0.7 * W  # [m] distance between left-right wheels
-    WD = 1.534
-    WB = 3.5  # [m] Wheel base
+    WD = 1.534 * 0.2
+    WB = 3.5   * 0.2# [m] Wheel base
     # TR = 0.5  # [m] Tyre radius
-    TR = 0.31265
+    TR = 0.31265 * 0.2
     # TW = 1  # [m] Tyre width
-    TW = 0.4
-    MAX_STEER = 0.6  # [rad] maximum steering angle
+    TW = 0.4 * 0.2
+    MAX_STEER = 0.6 # [rad] maximum steering angle
 
 class Para0:
     def __init__(self, minx, miny, maxx, maxy, xw, yw, reso, motion):
