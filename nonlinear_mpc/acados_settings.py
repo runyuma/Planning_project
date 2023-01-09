@@ -3,6 +3,9 @@ from bicycle_model import bicycle_model
 import scipy.linalg
 import numpy as np
 import os
+# setting for acados
+# docs: https://acados.github.io/acados/python_interface.html
+# docs: https://acados.github.io/acados/ocp_nlp.html
 def acados_settings(Tf, N,initial_state):
     """
     :param Tf: horizon length
@@ -37,7 +40,7 @@ def acados_settings(Tf, N,initial_state):
     #
     ocp.cost.cost_type = "LINEAR_LS"
     ocp.cost.cost_type_e = "LINEAR_LS"
-    ocp.cost.W = np.diag([10,10,10,20,5,1,100])# todo
+    ocp.cost.W = np.diag([10,10,5,20,5,1,100])# todo
     ocp.cost.W_e = np.diag([10,10,5,20,0])# todo
 
     # cost = ||VxX+VuU-yref||w
@@ -68,12 +71,20 @@ def acados_settings(Tf, N,initial_state):
     nsh = constraint.expr.shape[0]
     ocp.constraints.lh = np.array(
         [
+            -1000,
+            -1000,
+            -1000,
+            -1000,
             model.v_min,
             model.delta_min,
         ]
     )
     ocp.constraints.uh = np.array(
         [
+            1000,
+            1000,
+            1000,
+            1000,
             model.v_max,
             model.delta_max,
         ]

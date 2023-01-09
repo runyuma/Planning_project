@@ -8,6 +8,8 @@ def bicycle_model(initial_state):
 
     Lr = 1.25
     L =  2.5
+    disc_offset = 0.5
+    radius = 1.25
 
     x_ = MX.sym("x_")
     y_ = MX.sym("y_")
@@ -55,7 +57,13 @@ def bicycle_model(initial_state):
     # parameters
     p = vertcat([])
 
-    constraint.expr = vertcat(v, delta)
+    constraint.expr = vertcat(
+        x_+cos(theta)*disc_offset,
+        y_+sin(theta)*disc_offset,
+        x_-cos(theta)*disc_offset,
+        y_-sin(theta)*disc_offset,
+        v,
+        delta)
 
     model.x = x
     model.f_impl_expr = xdot - f_expl

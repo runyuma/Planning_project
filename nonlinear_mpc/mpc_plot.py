@@ -43,8 +43,8 @@ def plot_mpc(x,y,yaw,ref,x_pred,u,speed_prof=None):
     plt.scatter([i[0] for i in x_pred], [i[1] for i in x_pred], c="yellow")
 def draw_car(x,y,yaw,steer,color='black'):
     # draw car
-    RF = 3.3  # [m] distance from rear to vehicle front end of vehicle
-    RB = 0.8  # [m] distance from rear to vehicle back end of vehicle
+    RF = 2  # [m] distance from rear to vehicle front end of vehicle
+    RB = 2  # [m] distance from rear to vehicle back end of vehicle
     W = 2.4  # [m] width of vehicle
     WD = 0.7 * W  # [m] distance between left-right wheels
     WB = 2.5  # [m] Wheel base
@@ -71,10 +71,10 @@ def draw_car(x,y,yaw,steer,color='black'):
     frWheel = np.dot(Rot2, frWheel)
     flWheel = np.dot(Rot2, flWheel)
 
-    frWheel += np.array([[WB], [-WD / 2]])
-    flWheel += np.array([[WB], [WD / 2]])
-    rrWheel[1, :] -= WD / 2
-    rlWheel[1, :] += WD / 2
+    frWheel += np.array([[WB/2], [-WD / 2]])
+    flWheel += np.array([[WB/2], [WD / 2]])
+    rrWheel += np.array([[-WB/2], [-WD / 2]])
+    rlWheel += np.array([[-WB/2], [WD / 2]])
 
     frWheel = np.dot(Rot1, frWheel)
     flWheel = np.dot(Rot1, flWheel)
