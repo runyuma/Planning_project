@@ -101,6 +101,8 @@ test_param ={"N":6,   # Predict Horizon
         "radius":1.25,
         "start_vel":0.5,
         "approximate_acc" :0.5,
+        "max_acc":1.0,
+        "max_steer_vel":0.4,
         }
 
 def get_velprofile(path, target_speed,dv):
@@ -150,6 +152,7 @@ def get_velprofile(path, target_speed,dv):
                     else:
                         speed_profile[i - j] = -j * dv
                         speed_profile[i + j] = dv * j
+                    # print(i,j)
     for j in range(int(target_speed/dv)):
         if direction[1] > 0:
             speed_profile[j] = j * dv
@@ -182,12 +185,27 @@ def get_reftraj(robot_state,ref_path,vel_profile,param):
     z_ref[1, 0] = ref_path.cy[ind]
     z_ref[2, 0] = vel_profile[ind]
     z_ref[3, 0] = ref_path.cyaw[ind]
-    z_ref[4, 0] = ref_path.ck[ind]*np.sign(vel_profile[ind])*param["L"] # todo reference curvature
+    z_ref[4, 0] = np.clip(ref_path.ck[ind],0,0.2)*np.sign(vel_profile[ind])*param["L"] # todo reference curvature
+    steering_time = 1
+    if abs(robot_state.v) < 0.1:
+        if abs(robot_state.delta - np.clip(ref_path.ck[ind],0,0.2) * np.sign(vel_profile[ind]) * param["L"]) > param[
+            "max_steer_vel"] * dt*2:
+            print("steering")
+            steering_time = int(abs(robot_state.delta - np.clip(ref_path.ck[ind],0,0.2) * np.sign(vel_profile[ind]) * param["L"]) / (param[
+            "max_steer_vel"] * dt))
+            steering_time = min(steering_time, N + 1)
+            for i in range(0,steering_time):
+                z_ref[0, i] = ref_path.cx[ind]
+                z_ref[1, i] = ref_path.cy[ind]
+                z_ref[2, i] = 0
+                z_ref[3, i] = ref_path.cyaw[ind]
+                z_ref[4, i] = np.sign(np.clip(ref_path.ck[ind],0,0.2) * np.sign(vel_profile[ind]) * param["L"]-robot_state.delta)*param[
+            "max_steer_vel"] * dt*(i+1)+robot_state.delta
 
     dist_move = 0.0
     approx_vel = robot_state.v
     approx_acc = param["approximate_acc"]
-    for i in range(1, N + 1):
+    for i in range(steering_time, N + 1):
 
         dist_move += max(abs(approx_vel) * dt,start_vel*dt)
         ind_move = int(round(dist_move / d_dist))
