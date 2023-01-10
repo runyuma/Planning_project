@@ -15,6 +15,8 @@ test_param = path.test_param
 
 Tf = test_param["Tf"]  # prediction horizon
 N = test_param["N"]  # number of discretization steps
+disc_offset = test_param["disc_offset"]
+radius = test_param["radius"]
 T = 80.00
 state = bicycle_model.ROBOT_STATE(x=10.0, y=7.0, yaw=2.09, v=0.0)
 init_state = np.array([state.x,state.y,state.v,state.yaw,state.delta])
@@ -24,7 +26,7 @@ constraint, model, acados_solver = acados_settings(Tf, N, init_state)
 obstacles = []
 obstacles.append(obstacle.box(45, 14.5,0, 10, 2))
 obstacles.append(obstacle.box(45, 21,0, 10, 2))
-obstacles.append(obstacle.circle(6, 24,1))
+obstacles.append(obstacle.circle(5, 20,1))
 # dimensions
 nx = model.x.size()[0]
 nu = model.u.size()[0]
@@ -55,10 +57,53 @@ for i in range(Nsim):
     # print("x0",x0)
     acados_solver.set(0, "lbx", x0)
     acados_solver.set(0, "ubx", x0)
+    h = obstacles[-1].find_hyperplane(state, ref, 1.25)
+    if h is not None:
+
+        # T = np.array([[1,0,0,-np.sin(state.yaw)*disc_offset,0],
+        #               [0,1,0,np.cos(state.yaw)*disc_offset,0],
+        #               [1,0,0,np.sin(state.yaw)*disc_offset,0],
+        #               [0,1,0,-np.cos(state.yaw)*disc_offset,0]])
+        # t = np.array([disc_offset*np.cos(state.yaw)+state.yaw*np.sin(state.yaw)*disc_offset,
+        #               disc_offset*np.sin(state.yaw)-state.yaw*np.cos(state.yaw)*disc_offset,
+        #               -disc_offset*np.cos(state.yaw)-state.yaw*np.sin(state.yaw)*disc_offset,
+        #               -disc_offset*np.sin(state.yaw)+state.yaw*np.cos(state.yaw)*disc_offset])
+        # L = np.array([[h[0],h[1],0,0],
+        #               [0,0,h[0],h[1]]])
+        # g_u = np.array([-h[2],-h[2]])
+        # g_u += L@t
+        # C = L@T
+        # D = np.zeros((2,2))
+        # g_l = np.array([-np.inf,-np.inf])
+        T = np.array([[1, 0, 0, 0, 0],
+                       [0,1,0,0,0],
+                       [1,0,0,0,0],
+                       [0,1,0,0,0]])
+        L = np.array([[h[0], h[1], 0, 0],
+                       [0,0,h[0],h[1]]])
+        C = L@T
+        g_u = np.array([-h[2],-h[2]])
+        g_l = np.array([-np.inf,-np.inf])
+        D = np.zeros((2,2))
+        print(C@x0-g_u)
     for j in range(N):
         yref = np.zeros(7)
         yref[:5] = np.array(ref[:,j])
         acados_solver.set(j, "yref", yref)
+        if h is not None:
+            acados_solver.constraints_set(j, "C", C,api='new')
+            acados_solver.constraints_set(j, "D", D,api='new')
+            acados_solver.constraints_set(j, "lg", g_l)
+            acados_solver.constraints_set(j, "ug", g_u)
+    # if h is not None:
+        # acados_solver.constraints_set(1, "C", C,api='new')
+        # acados_solver.constraints_set(1, "D", D,api='new')
+        # acados_solver.constraints_set(1, "lg", g_l)
+        # acados_solver.constraints_set(1, "ug", g_u)
+        # acados_solver.constraints_set(N, "C", C, api='new')
+        # acados_solver.constraints_set(N, "D", D, api='new')
+        # acados_solver.constraints_set(N, "lg", g_l)
+        # acados_solver.constraints_set(N, "ug", g_u)
     acados_solver.set(N, "yref", np.array(ref[:,N]))
     status = acados_solver.solve()
     if status != 0:
@@ -66,7 +111,7 @@ for i in range(Nsim):
     x_pred = [acados_solver.get(j, "x") for j in range(N+1)]
     u = [acados_solver.get(j, "u") for j in range(N)]
 
-    # print("x_pred",x_pred)
+    print("x_pred",x_pred)
     state.state_update(u[0][0],u[0][1],test_param)
 
     mpc_plot.plot_mpc(test_path.cx, test_path.cy, test_path.cyaw, ref, x_pred, u, speed_profile)

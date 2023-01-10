@@ -97,6 +97,8 @@ test_param ={"N":6,   # Predict Horizon
         "N_IND":10, # search index number
         "lr":1.25,
         "L":2.5,    # lr+lf
+        "disc_offset":0.5,
+        "radius":1.25,
         "start_vel":1,
         }
 
