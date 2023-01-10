@@ -99,7 +99,8 @@ test_param ={"N":6,   # Predict Horizon
         "L":2.5,    # lr+lf
         "disc_offset":0.5,
         "radius":1.25,
-        "start_vel":1,
+        "start_vel":0.5,
+        "approximate_acc" :0.5,
         }
 
 def get_velprofile(path, target_speed,dv):
@@ -136,7 +137,7 @@ def get_velprofile(path, target_speed,dv):
         else:
             speed_profile[i] = target_speed
     # if change direction, set vel = 0
-    split = []
+    split = [0]
     for i in range(len(cx)-1):
         if direction[i] != direction[i+1]:
             split.append(i)
@@ -184,8 +185,11 @@ def get_reftraj(robot_state,ref_path,vel_profile,param):
     z_ref[4, 0] = ref_path.ck[ind]*np.sign(vel_profile[ind])*param["L"] # todo reference curvature
 
     dist_move = 0.0
+    approx_vel = robot_state.v
+    approx_acc = param["approximate_acc"]
     for i in range(1, N + 1):
-        dist_move += max(abs(robot_state.v) * dt,start_vel*dt)
+
+        dist_move += max(abs(approx_vel) * dt,start_vel*dt)
         ind_move = int(round(dist_move / d_dist))
         index = min(ind + ind_move, length - 1)
 
@@ -194,6 +198,10 @@ def get_reftraj(robot_state,ref_path,vel_profile,param):
         z_ref[2, i] = vel_profile[index]
         z_ref[3, i] = ref_path.cyaw[index]
         z_ref[4, i] = ref_path.ck[index]*np.sign(vel_profile[index])*param["L"] # todo reference curvature
+        if abs(vel_profile[index]-approx_vel) <= approx_acc*dt:
+            approx_vel = vel_profile[index]
+        else:
+            approx_vel += np.sign(vel_profile[index]-approx_vel) * approx_acc * dt
     if z_ref[2, 0] != 0:
         direction = np.sign(z_ref[2, 0])
     else:

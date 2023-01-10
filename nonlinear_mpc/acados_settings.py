@@ -67,10 +67,13 @@ def acados_settings(Tf, N,initial_state):
     ocp.constraints.idxbu = np.array([0, 1])
     ocp.constraints.lbu = np.array([model.acc_min, model.derdelta_min])
     ocp.constraints.ubu = np.array([model.acc_max, model.derdelta_max])
-    ocp.constraints.C = np.zeros((2, nx))
-    ocp.constraints.D = np.zeros((2, nu))
-    ocp.constraints.lg = np.array([-1000,-1000])
-    ocp.constraints.ug = np.array([1000,1000])
+    ocp.constraints.C = constraint.C
+    ocp.constraints.D = constraint.D
+    ocp.constraints.lg = constraint.lg
+    ocp.constraints.ug = constraint.ug
+    ocp.constraints.C_e = constraint.C
+    ocp.constraints.lg_e = constraint.lg
+    ocp.constraints.ug_e = constraint.ug
 
     nsh = constraint.expr.shape[0]
     ocp.constraints.lh = np.array(
@@ -106,12 +109,16 @@ def acados_settings(Tf, N,initial_state):
     # set QP solver and integration
     ocp.solver_options.tf = Tf
     ocp.solver_options.qp_solver = 'FULL_CONDENSING_QPOASES'
+    # ocp.solver_options.qp_solver = 'FULL_CONDENSING_HPIPM'
     # ocp.solver_options.qp_solver = "PARTIAL_CONDENSING_HPIPM"
     ocp.solver_options.nlp_solver_type = "SQP_RTI"
     ocp.solver_options.hessian_approx = "GAUSS_NEWTON"
     ocp.solver_options.integrator_type = "ERK"
     ocp.solver_options.sim_method_num_stages = 4
     ocp.solver_options.sim_method_num_steps = 3
+    ocp.solver_options.qp_solver_tol_eq = 1e-4
+    ocp.solver_options.qp_solver_tol_ineq = 1e-4
+    ocp.solver_options.qp_solver_tol_comp = 1e-4
     acados_solver = AcadosOcpSolver(ocp, json_file="acados_ocp.json")
 
     return constraint, model, acados_solver

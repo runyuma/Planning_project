@@ -1,3 +1,4 @@
+import numpy as np
 from casadi import *
 
 def bicycle_model(initial_state):
@@ -10,6 +11,7 @@ def bicycle_model(initial_state):
     L =  2.5
     disc_offset = 0.5
     radius = 1.25
+    constraint_num = 3
 
     x_ = MX.sym("x_")
     y_ = MX.sym("y_")
@@ -64,7 +66,10 @@ def bicycle_model(initial_state):
         y_-sin(theta)*disc_offset,
         v,
         delta)
-
+    constraint.C = np.zeros((constraint_num*2, 5))
+    constraint.D = np.zeros((constraint_num * 2, 2))
+    constraint.lg = np.array([-1000]*constraint_num*2)
+    constraint.ug = np.array([1000]*constraint_num*2)
     model.x = x
     model.f_impl_expr = xdot - f_expl
     model.f_expl_expr = f_expl
