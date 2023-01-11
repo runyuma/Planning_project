@@ -12,6 +12,11 @@ from obstacled_environments.common.prius import Prius
 from obstacled_environments.common.generic_urdf import GenericUrdfReacher
 import numpy as np
 import pandas as pd
+from nonlinear_mpc.acados_settings import *
+import nonlinear_mpc.bicycle_model
+import nonlinear_mpc.mpc_plot
+import nonlinear_mpc.obstacle
+from nonlinear_mpc.mpc_controller import mpc_controller
 
 
 def getDiffActions(npy_filename):
