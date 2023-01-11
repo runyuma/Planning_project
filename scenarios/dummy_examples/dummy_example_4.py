@@ -17,6 +17,8 @@ import nonlinear_mpc.bicycle_model
 import nonlinear_mpc.mpc_plot
 import nonlinear_mpc.obstacle
 from nonlinear_mpc.mpc_controller import mpc_controller
+import nonlinear_mpc.path
+import time
 
 
 def getDiffActions(npy_filename):
@@ -77,7 +79,6 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     action = np.array([0., 0.])
     pos0 = np.array([0., 0., 0.])
     ob = env.reset(pos=pos0)
-
     obs_states = []
 
     env.add_shapes(shape_type='GEOM_BOX', dim=[12.0, 1.0, 2.0], poses_2d=[[2.0, -2.5, 0.0]], place_height=0.)
@@ -87,20 +88,48 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
 
     print(f"Initial observation : {ob}")
     history = []
-    for i in range(n_steps):
-        # TODO: use the real-time MPC (with 'sensor feedback' of the simulation environment)
-        #       to predict the differential actions for the next step.
-        action = getActionUpdate(action,i,diff_action)
-        ob, _, _, _ = env.step(action)
-        # TODO: check definition of ob, and output [x,y,yaw,d_delta],
-        #       and transfer it to the MPC controller, instead of using the 
-        #       model-predicted state
-        # obs_states.append([]) 
+    a = np.load("ref_simple1.npy")
+    x, y, yaw, direction = a[:, 0], a[:, 1], a[:, 2], a[:, 3]
+    hybridastar_path = nonlinear_mpc.path.PATH(x, y, yaw, 0)
+    speed_profile = nonlinear_mpc.path.get_velprofile(hybridastar_path, 1., 0.1)
+    test_param = test_param = {
+        "T": 60,
+        "N": 6,  # Predict Horizon
+        "Tf": 2.4,  # dim of state space
+        "dt": 0.4,  # time step
+        "d_dist": 0.04,  # todo:distance between nodes
+        "N_IND": 10,  # search index number
+        "lr": 1.425,
+        "L": 2.85,  # lr+lf
+        "disc_offset": 1,
+        "radius": 1.455,
+        "start_vel": 0.25,
+        "approximate_acc": 0.2,
+        "max_acc": 1.0,
+        "max_steer_vel": 0.6,
+    }
+    T = test_param["T"]
+    Tf = test_param["Tf"]  # prediction horizon
+    N = test_param["N"]
+    Nsim = int(T * N / Tf)
+    state = nonlinear_mpc.bicycle_model.ROBOT_STATE(x=1.0125, y=0, yaw=0, v=0.0)
+    state.get_state(ob)
+    mpc = mpc_controller(hybridastar_path, test_param, state, speed_profile)
+    for i in range(Nsim):
+        u, ref, x_pred = mpc.control()
+        acc = u[0]
+        delta_dot = u[1]
+        for j in range(int(test_param["dt"]/0.01)):
+            v = state.v + acc * 0.01
+            action = [v,delta_dot]
+            ob, _, _, _ = env.step(action)
+            state.get_state(ob)
+            # time.sleep(0.01)
+        mpc.visualize(ref, x_pred)
         history.append(ob)
     env.close()
     return history
 
 if __name__ == "__main__":
-
     run_prius(render=True)
 

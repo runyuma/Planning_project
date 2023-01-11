@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import time, os
-import path
-from acados_settings import *
-import bicycle_model
-import mpc_plot
-import obstacle
+import nonlinear_mpc.path as path
+from nonlinear_mpc.acados_settings import *
+import nonlinear_mpc.bicycle_model as bicycle_model
+import nonlinear_mpc.mpc_plot as mpc_plot
+import nonlinear_mpc.obstacle as obstacle
 
 class mpc_controller():
     def __init__(self,astarpath,param,init_state,speed_profile):

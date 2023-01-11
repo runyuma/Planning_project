@@ -92,6 +92,13 @@ class ROBOT_STATE():
         self.v = v
         self.delta = delta
         #todo:delta
+    def get_state(self,dict):
+        self.x = dict["robot_0"]["joint_state"]["position"][0]
+        self.y = dict["robot_0"]["joint_state"]["position"][1]
+        self.yaw = dict["robot_0"]["joint_state"]["position"][2]
+        self.v = dict["robot_0"]["joint_state"]["forward_velocity"][0]
+        self.delta = dict["robot_0"]["joint_state"]["steering"][0]
+
     def state_update(self, acc, derdelta,param):
         """
         update the state of the robot
