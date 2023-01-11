@@ -19,37 +19,37 @@ class Node:
         self.pind = pind
 
 
+# class C:  # Parameter config
+#     PI = math.pi
 
-class C:  # Parameter config
-    PI = math.pi
+#     XY_RESO = 0.1  # [m]
+#     # XY_RESO = 0.1 # yongxi
+#     YAW_RESO = np.deg2rad(5.0)  # [rad]
+#     # YAW_RESO = np.deg2rad(5.0)  # yongxi [rad]
+#     MOVE_STEP = 0.04  # [m] path interporate resolution
+#     # MOVE_STEP = 0.04  # [m] path interporate resolution 
+#     # N_STEER = 20.0  # steer command number
+#     N_STEER = 2.0  # steer command number
+#     COLLISION_CHECK_STEP = 3  # skip number for collision check
+#     EXTEND_BOUND = 1  # collision check range extended
 
-    XY_RESO = 0.1  # [m]
-    YAW_RESO = np.deg2rad(15.0)  # [rad]
-    MOVE_STEP = 0.04  # [m] path interporate resolution
-    N_STEER = 20.0  # steer command number
-    COLLISION_CHECK_STEP = 5  # skip number for collision check
-    EXTEND_BOUND = 1  # collision check range extended
+#     RECTIF = 10.0
+#     GEAR_COST = 100.0 * RECTIF # switch back penalty cost
+#     BACKWARD_COST = 5.0 * RECTIF # backward penalty cost
+#     STEER_CHANGE_COST = 5.0 * RECTIF # steer angle change penalty cost
+#     STEER_ANGLE_COST = 1.0 * RECTIF # steer angle penalty cost
+#     H_COST = 15.0 * RECTIF # Heuristic cost penalty cost
 
-    GEAR_COST = 100.0  # switch back penalty cost
-    BACKWARD_COST = 5.0  # backward penalty cost
-    STEER_CHANGE_COST = 5.0  # steer angle change penalty cost
-    STEER_ANGLE_COST = 1.0  # steer angle penalty cost
-    H_COST = 15.0  # Heuristic cost penalty cost
+#     RESIZE = 1.0
+#     RF = 3.45 * RESIZE
+#     RB = 0.6  * RESIZE
+#     W = 1.8 * RESIZE # chasis is 1.7526
+#     WD = 1.534 * RESIZE
+#     WB = 2.85   * RESIZE # [m] Wheel base
+#     TR = 0.31265 * RESIZE
+#     TW = 0.4 * RESIZE
+#     MAX_STEER = 0.6 # [rad] maximum steering angle
 
-    # RF = 4.5  # [m] distance from rear to vehicle front end of vehicle
-    RF = 3.45 * 0.2
-    # RB = 1.0  # [m] distance from rear to vehicle back end of vehicle
-    RB = 0.6  * 0.2
-    # W = 3.0  # [m] width of vehicle
-    W = 1.8 * 0.2 # chasis is 1.7526
-    # WD = 0.7 * W  # [m] distance between left-right wheels
-    WD = 1.534 * 0.2
-    WB = 3.5   * 0.2# [m] Wheel base
-    # TR = 0.5  # [m] Tyre radius
-    TR = 0.31265 * 0.2
-    # TW = 1  # [m] Tyre width
-    TW = 0.4 * 0.2
-    MAX_STEER = 0.6 # [rad] maximum steering angle
 
 class Para0:
     def __init__(self, minx, miny, maxx, maxy, xw, yw, reso, motion):
@@ -88,8 +88,7 @@ def get_motion():
 
 def calc_obsmap(ox, oy, rr, P):
     obsmap = [[False for _ in range(P.yw)] for _ in range(P.xw)]
-    print(rr)
-    print(P.reso)
+
     for x in range(P.xw):
         xx = x + P.minx
         for y in range(P.yw):
@@ -121,8 +120,10 @@ def calc_parameters(ox, oy, xyreso, yawreso, kdtree):
 
     xw, yw = maxx - minx, maxy - miny
 
-    minyaw = round(-C.PI / yawreso) - 1
-    maxyaw = round(C.PI / yawreso)
+    PI = np.pi
+    
+    minyaw = round(-PI / yawreso) - 1
+    maxyaw = round(PI / yawreso)
     yaww = maxyaw - minyaw
 
     return Para(minx, miny, minyaw, maxx, maxy, maxyaw,

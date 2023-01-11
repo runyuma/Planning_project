@@ -8,7 +8,7 @@ from typing import List
 from MotionPlanningEnv.collisionObstacle import CollisionObstacle
 from MotionPlanningGoal.goalComposition import GoalComposition
 
-from obstacled_environments.common.plane import Plane
+from obstacled_environments.common.plane import SmallPlane
 from obstacled_environments.common.sensors.sensor import Sensor
 from obstacled_environments.common.generic_robot import GenericRobot
 
@@ -505,7 +505,7 @@ class SimpleUrdfEnv(gym.Env):
         if not self._space_set:
             self.set_spaces()
             self._space_set = True
-        self.plane = Plane()
+        self.plane = SmallPlane()
         p.setGravity(0, 0, -10.0)
         p.stepSimulation()
         return self._get_ob()

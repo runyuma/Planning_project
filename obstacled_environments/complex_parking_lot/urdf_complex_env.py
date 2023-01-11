@@ -8,7 +8,7 @@ from typing import List
 from MotionPlanningEnv.collisionObstacle import CollisionObstacle
 from MotionPlanningGoal.goalComposition import GoalComposition
 
-from obstacled_environments.common.plane import Plane
+from obstacled_environments.common.plane import LargePlane
 from obstacled_environments.common.sensors.sensor import Sensor
 from obstacled_environments.common.generic_robot import GenericRobot
 
@@ -312,7 +312,7 @@ class ComplexUrdfEnv(gym.Env):
 
     def add_walls(
         self,
-        dim=np.array([0.2, 8, 0.5]),
+        dim=np.array([0.2, 50, 0.5]),
         poses_2d=None,
     ) -> None:
         """
@@ -326,10 +326,10 @@ class ComplexUrdfEnv(gym.Env):
         """
         if poses_2d is None:
             poses_2d = [
-                [-4, 0.1, 0],
-                [4, -0.1, 0],
-                [0.1, 4, 0.5 * np.pi],
-                [-0.1, -4, 0.5 * np.pi],
+                [-25.0, 0.1, 0],
+                [25.0, -0.1, 0],
+                [0.1, 25.0, 0.5 * np.pi],
+                [-0.1, -25.0, 0.5 * np.pi],
             ]
         self.add_shapes(
             shape_type="GEOM_BOX", dim=dim, mass=0, poses_2d=poses_2d
@@ -505,7 +505,7 @@ class ComplexUrdfEnv(gym.Env):
         if not self._space_set:
             self.set_spaces()
             self._space_set = True
-        self.plane = Plane()
+        self.plane = LargePlane()
         p.setGravity(0, 0, -10.0)
         p.stepSimulation()
         return self._get_ob()

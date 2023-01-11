@@ -1,11 +1,14 @@
 from obstacle_map import get_env_simple, calc_parameters, calc_parameters_arxiv
-import scipy.spatial.kdtree as kd
 import reeds_shepp as rs
+import draw
+
+import scipy.spatial.kdtree as kd
 import heapq
 import math
 import numpy as np
 from heapdict import heapdict
 import time
+import matplotlib.pyplot as plt
 
 
 class Node:
@@ -33,48 +36,41 @@ class Node0:
 class C:  # Parameter config
     PI = math.pi
 
-    # XY_RESO = 0.1  # [m]
     XY_RESO = 0.1  # [m]
-    YAW_RESO = np.deg2rad(15.0)  # [rad]
+    # XY_RESO = 0.1 # yongxi
+    YAW_RESO = np.deg2rad(5.0)  # [rad]
+    # YAW_RESO = np.deg2rad(5.0)  # yongxi [rad]
     MOVE_STEP = 0.04  # [m] path interporate resolution
-    N_STEER = 20.0  # steer command number
-    COLLISION_CHECK_STEP = 5  # skip number for collision check
+    # MOVE_STEP = 0.04  # [m] path interporate resolution 
+    # N_STEER = 20.0  # steer command number
+    N_STEER = 2.0  # steer command number
+    COLLISION_CHECK_STEP = 3  # skip number for collision check
     EXTEND_BOUND = 1  # collision check range extended
 
-    GEAR_COST = 100.0  # switch back penalty cost
-    BACKWARD_COST = 5.0  # backward penalty cost
-    STEER_CHANGE_COST = 5.0  # steer angle change penalty cost
-    STEER_ANGLE_COST = 1.0  # steer angle penalty cost
-    H_COST = 15.0  # Heuristic cost penalty cost
-
-    # # RF = 4.5  # [m] distance from rear to vehicle front end of vehicle
-    # RF = 3.45
-    # # RB = 1.0  # [m] distance from rear to vehicle back end of vehicle
-    # RB = 0.6
-    # # W = 3.0  # [m] width of vehicle
-    # W = 1.8 # chasis is 1.7526
-    # # WD = 0.7 * W  # [m] distance between left-right wheels
-    # WD = 1.534
-    # WB = 3.5  # [m] Wheel base
-    # # TR = 0.5  # [m] Tyre radius
-    # TR = 0.31265
-    # # TW = 1  # [m] Tyre width
-    # TW = 0.4
-    # MAX_STEER = 0.6  # [rad] maximum steering angle
+    RECTIF = 10.0
+    GEAR_COST = 100.0 * RECTIF # switch back penalty cost
+    BACKWARD_COST = 5.0 * RECTIF # backward penalty cost
+    STEER_CHANGE_COST = 5.0 * RECTIF # steer angle change penalty cost
+    STEER_ANGLE_COST = 1.0 * RECTIF # steer angle penalty cost
+    H_COST = 15.0 * RECTIF # Heuristic cost penalty cost
 
     # RF = 4.5  # [m] distance from rear to vehicle front end of vehicle
-    RF = 3.45 * 0.2
     # RB = 1.0  # [m] distance from rear to vehicle back end of vehicle
-    RB = 0.6  * 0.2
     # W = 3.0  # [m] width of vehicle
-    W = 1.8 * 0.2 # chasis is 1.7526
     # WD = 0.7 * W  # [m] distance between left-right wheels
-    WD = 1.534 * 0.2
-    WB = 3.5   * 0.2# [m] Wheel base
+    # WB = 3.5  # [m] Wheel base
     # TR = 0.5  # [m] Tyre radius
-    TR = 0.31265 * 0.2
     # TW = 1  # [m] Tyre width
-    TW = 0.4 * 0.2
+    # MAX_STEER = 0.6  # [rad] maximum steering angle
+
+    RESIZE = 1.0
+    RF = 3.45 * RESIZE
+    RB = 0.6  * RESIZE
+    W = 1.8 * RESIZE # chasis is 1.7526
+    WD = 1.534 * RESIZE
+    WB = 2.85   * RESIZE # [m] Wheel base
+    TR = 0.31265 * RESIZE
+    TW = 0.4 * RESIZE
     MAX_STEER = 0.6 # [rad] maximum steering angle
 
 
@@ -200,7 +196,9 @@ def calc_holonomic_heuristic_with_obstacle(node, ox, oy, reso, rr):
     ox = [x / reso for x in ox]
     oy = [y / reso for y in oy]
 
-    P, obsmap = calc_parameters_arxiv(ox, oy, reso, rr)
+    # 这里传入的reso是碰撞半径，rr是障碍地图的分辨率
+    # P, obsmap = calc_parameters(ox, oy, reso, rr)
+    P, obsmap = calc_parameters_arxiv(ox, oy, rr, reso)
 
     open_set, closed_set = dict(), dict()
     open_set[calc_index_arxiv(n_goal, P)] = n_goal
@@ -281,6 +279,54 @@ def calc_rs_path_cost(rspath):
 
     return cost
 
+
+def draw_car(x, y, yaw, steer, color='black'):
+    car = np.array([[-C.RB, -C.RB, C.RF, C.RF, -C.RB],
+                    [C.W / 2, -C.W / 2, -C.W / 2, C.W / 2, C.W / 2]])
+
+    wheel = np.array([[-C.TR, -C.TR, C.TR, C.TR, -C.TR],
+                      [C.TW / 4, -C.TW / 4, -C.TW / 4, C.TW / 4, C.TW / 4]])
+
+    rlWheel = wheel.copy()
+    rrWheel = wheel.copy()
+    frWheel = wheel.copy()
+    flWheel = wheel.copy()
+
+    Rot1 = np.array([[math.cos(yaw), -math.sin(yaw)],
+                     [math.sin(yaw), math.cos(yaw)]])
+
+    Rot2 = np.array([[math.cos(steer), math.sin(steer)],
+                     [-math.sin(steer), math.cos(steer)]])
+
+    frWheel = np.dot(Rot2, frWheel)
+    flWheel = np.dot(Rot2, flWheel)
+
+    frWheel += np.array([[C.WB], [-C.WD / 2]])
+    flWheel += np.array([[C.WB], [C.WD / 2]])
+    rrWheel[1, :] -= C.WD / 2
+    rlWheel[1, :] += C.WD / 2
+
+    frWheel = np.dot(Rot1, frWheel)
+    flWheel = np.dot(Rot1, flWheel)
+
+    rrWheel = np.dot(Rot1, rrWheel)
+    rlWheel = np.dot(Rot1, rlWheel)
+    car = np.dot(Rot1, car)
+
+    frWheel += np.array([[x], [y]])
+    flWheel += np.array([[x], [y]])
+    rrWheel += np.array([[x], [y]])
+    rlWheel += np.array([[x], [y]])
+    car += np.array([[x], [y]])
+
+    plt.plot(car[0, :], car[1, :], color)
+    plt.plot(frWheel[0, :], frWheel[1, :], color)
+    plt.plot(rrWheel[0, :], rrWheel[1, :], color)
+    plt.plot(flWheel[0, :], flWheel[1, :], color)
+    plt.plot(rlWheel[0, :], rlWheel[1, :], color)
+    draw.Arrow(x, y, yaw, C.WB * 0.8, color)
+
+
 def u_cost(u):
     return math.hypot(u[0], u[1])
 
@@ -318,7 +364,7 @@ def update_node_with_analystic_expantion(n_curr, ngoal, P):
 
 def is_collision(x, y, yaw, P):
     for ix, iy, iyaw in zip(x, y, yaw):
-        d = 1
+        d = 0.2 # collision check distance
         dl = (C.RF - C.RB) / 2.0
         r = (C.RF + C.RB) / 2.0 + d
 
@@ -413,30 +459,14 @@ def hybrid_astar_planning(sx, sy, syaw, gx, gy, gyaw, ox, oy, xyreso, yawreso):
     nstart = Node(sxr, syr, syawr, 1, [sx], [sy], [syaw], [1], 0.0, 0.0, -1)
     ngoal = Node(gxr, gyr, gyawr, 1, [gx], [gy], [gyaw], [1], 0.0, 0.0, -1)
 
-    # print(nstart.xind)
-    # print(ngoal.xind)
-
-    # print(ox)
-    # print(len(oy))
     kdtree = kd.KDTree([[x, y] for x, y in zip(ox, oy)])
-    # print(kdtree)
+
     P = calc_parameters(ox, oy, xyreso, yawreso, kdtree)
 
     hmap = calc_holonomic_heuristic_with_obstacle(ngoal, P.ox, P.oy, P.xyreso, 0.1) # 最后一个参数rr 1.0->0.1
     
-    print(nstart.xind-P.minx)
-    print(nstart.yind-P.miny)
-    
-    print(ngoal.xind-P.minx)
-    print(ngoal.yind-P.miny)
-    
-    print(hmap[nstart.xind-P.minx][nstart.yind-P.miny])
-    
     steer_set, direc_set = calc_motion_set()
     open_set, closed_set = {calc_index(nstart, P): nstart}, {}
-
-    print(calc_index(ngoal, P))
-    print(calc_index(nstart, P))
 
     qp = QueuePrior()
     qp.put(calc_index(nstart, P), calc_hybrid_cost(nstart, hmap, P))
@@ -479,13 +509,73 @@ def hybrid_astar_planning(sx, sy, syaw, gx, gy, gyaw, ox, oy, xyreso, yawreso):
     return extract_path(closed_set, fnode, nstart)
 
 
+def my_design_obstacles(reso):
+    ox, oy = [], []
+
+    # the simple obstacled environment
+
+    for i in np.arange(-4.0,3.5,reso):
+        ox.append(i)
+        oy.append(1.5)
+
+    for i in np.arange(10.0,16.0,reso):
+        ox.append(i)
+        oy.append(1.5)
+    
+    for i in np.arange(-4.0,8.0,reso):
+        ox.append(i)
+        oy.append(-2.0)
+
+    for i in np.arange(1.5,4.5,reso):
+        ox.append(3.5)
+        oy.append(i)
+
+    for i in np.arange(1.5,4.5,reso):
+        ox.append(10.0)
+        oy.append(i)
+
+    for i in np.arange(3.5,10.0,reso):
+        ox.append(i)
+        oy.append(4.5)
+
+    for i in np.arange(1.5,5.5,reso):
+        ox.append(-4.0)
+        oy.append(i)
+
+    for i in np.arange(1.5,5.5,reso):
+        ox.append(16.0)
+        oy.append(i)
+
+    for i in np.arange(-3.0,-2.0,reso):
+        ox.append(-4.0)
+        oy.append(i)
+
+    for i in np.arange(-3.0,-2.0,reso):
+        ox.append(8.0)
+        oy.append(i)
+
+    for i in np.arange(-4.0,8.0,reso):
+        ox.append(i)
+        oy.append(-3.0)
+
+    for i in np.arange(-4.0,16.0,reso):
+        ox.append(i)
+        oy.append(5.5)
+
+
+    return ox,oy
+
+
 if __name__=='__main__':
 
-    sx, sy, syaw0 = 0.0, 0.0, np.deg2rad(0.0)
-    gx, gy, gyaw0 = 2.75, 0.0, np.deg2rad(0.0)
+    print("start!")
 
-    reso = 0.2
-    ox,oy = get_env_simple(reso)
+    sx, sy, syaw0 = 0.0, 0.0, np.deg2rad(0.0)
+    gx, gy, gyaw0 = 5.325, 3.0, np.deg2rad(0.0)
+
+    reso = 0.1
+
+    ox, oy = my_design_obstacles(reso)
 
     # rr = 0.1 # car radius
     t0 = time.time()
@@ -497,12 +587,49 @@ if __name__=='__main__':
     
     if path is None:
         print("Search failed!")
-    else:
-        x = path.x
-        y = path.y
-        yaw = path.yaw
-        direction = path.direction
+    
+    x = path.x
+    y = path.y
+    yaw = path.yaw
+    REAR_TO_CENTER = 1.425
 
-        print(x,y,yaw,direction)
+    x_center = x.copy()
+    y_center = y.copy()
 
-    # print(path)
+    for k in range(len(x)):    
+        x_center[k] = x[k] + REAR_TO_CENTER * np.cos(yaw[k])
+        y_center[k] = y[k] + REAR_TO_CENTER * np.sin(yaw[k])  
+    
+    direction = path.direction
+
+    data_all = np.array([x_center,y_center,yaw,direction]).transpose()
+
+    with open('ref_trial1.npy', 'wb') as f:
+        np.save(f, data_all)
+
+
+    for k in range(len(x)):
+        plt.cla()
+        plt.plot(ox, oy, "sk")
+        plt.plot(x, y, linewidth=1.5, color='r')
+        plt.plot(x_center, y_center, linewidth=1.5, color='b')
+        
+
+        if k < len(x) - 2:
+            dy = (yaw[k + 1] - yaw[k]) / C.MOVE_STEP
+            # dys.append(dy)
+            steer = rs.pi_2_pi(math.atan(-C.WB * dy / direction[k]))
+
+        else:
+            steer = 0.0
+
+        draw_car(gx, gy, gyaw0, 0.0, 'dimgray')
+        draw_car(x[k], y[k], yaw[k], steer)
+        plt.title("Hybrid A*")
+        plt.axis("equal")
+        plt.pause(0.0001)
+
+
+    plt.show()
+    print("Done!")
+
