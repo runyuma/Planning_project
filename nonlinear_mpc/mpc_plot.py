@@ -24,7 +24,7 @@ def plot_ref(x,y,yaw,ref,speed_prof=None):
                 plt.plot([x[i], x[i + 1]], [y[i], y[i + 1]], "bo")
     plt.plot(ref[0], ref[1], "black",marker="^")
     plt.scatter(ref[0], ref[1], c = "black")
-def plot_mpc(x,y,yaw,ref,x_pred,u,speed_prof=None):
+def plot_mpc(x,y,yaw,ref,x_pred,speed_prof=None):
     lenth = len(x)
     plt.plot(x, y, "r")
     # if speed_prof == None:

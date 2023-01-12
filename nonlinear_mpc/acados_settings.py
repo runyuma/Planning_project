@@ -1,5 +1,5 @@
 from acados_template import AcadosModel, AcadosOcp, AcadosOcpSolver
-from bicycle_model import bicycle_model
+from nonlinear_mpc.bicycle_model import bicycle_model
 import scipy.linalg
 import numpy as np
 import os
