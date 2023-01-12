@@ -18,39 +18,6 @@ class Node:
         self.cost = cost
         self.pind = pind
 
-
-# class C:  # Parameter config
-#     PI = math.pi
-
-#     XY_RESO = 0.1  # [m]
-#     # XY_RESO = 0.1 # yongxi
-#     YAW_RESO = np.deg2rad(5.0)  # [rad]
-#     # YAW_RESO = np.deg2rad(5.0)  # yongxi [rad]
-#     MOVE_STEP = 0.04  # [m] path interporate resolution
-#     # MOVE_STEP = 0.04  # [m] path interporate resolution 
-#     # N_STEER = 20.0  # steer command number
-#     N_STEER = 2.0  # steer command number
-#     COLLISION_CHECK_STEP = 3  # skip number for collision check
-#     EXTEND_BOUND = 1  # collision check range extended
-
-#     RECTIF = 10.0
-#     GEAR_COST = 100.0 * RECTIF # switch back penalty cost
-#     BACKWARD_COST = 5.0 * RECTIF # backward penalty cost
-#     STEER_CHANGE_COST = 5.0 * RECTIF # steer angle change penalty cost
-#     STEER_ANGLE_COST = 1.0 * RECTIF # steer angle penalty cost
-#     H_COST = 15.0 * RECTIF # Heuristic cost penalty cost
-
-#     RESIZE = 1.0
-#     RF = 3.45 * RESIZE
-#     RB = 0.6  * RESIZE
-#     W = 1.8 * RESIZE # chasis is 1.7526
-#     WD = 1.534 * RESIZE
-#     WB = 2.85   * RESIZE # [m] Wheel base
-#     TR = 0.31265 * RESIZE
-#     TW = 0.4 * RESIZE
-#     MAX_STEER = 0.6 # [rad] maximum steering angle
-
-
 class Para0:
     def __init__(self, minx, miny, maxx, maxy, xw, yw, reso, motion):
         self.minx = minx
@@ -121,7 +88,7 @@ def calc_parameters(ox, oy, xyreso, yawreso, kdtree):
     xw, yw = maxx - minx, maxy - miny
 
     PI = np.pi
-    
+
     minyaw = round(-PI / yawreso) - 1
     maxyaw = round(PI / yawreso)
     yaww = maxyaw - minyaw
@@ -130,56 +97,613 @@ def calc_parameters(ox, oy, xyreso, yawreso, kdtree):
                 xw, yw, yaww, xyreso, yawreso, ox, oy, kdtree)
 
 
-def get_env_simple(reso):
+def my_design_obstacles_small(reso):
+    ox, oy = [], []
 
-    ox=list()
-    oy=list()
+    # the simple obstacled environment
 
-    # obstacle 1
-    for i in np.arange(-4.0,1.5,reso):
-        for j in np.arange(1.0,3.0,reso):
-            ox.append(i)
-            oy.append(j)
+    for i in np.arange(-4.0,3.5,reso):
+        ox.append(i)
+        oy.append(1.5)
+
+    for i in np.arange(10.0,16.0,reso):
+        ox.append(i)
+        oy.append(1.5)
     
-    # obstacle 2
-    for i in np.arange(1.5,4.0,reso):
-        for j in np.arange(2.5,3.0,reso):
-            ox.append(i)
-            oy.append(j)
+    for i in np.arange(-4.0,8.0,reso):
+        ox.append(i)
+        oy.append(-2.0)
 
-    # obstacle 3 
-    for i in np.arange(4.0,10.0,reso):
-        for j in np.arange(1.0,3.0,reso):
-            ox.append(i)
-            oy.append(j)
+    for i in np.arange(1.5,4.5,reso):
+        ox.append(3.5)
+        oy.append(i)
 
-    # obstacle 4
-    for i in np.arange(-4.0,10.0,reso):
-        for j in np.arange(-2.0,-1.0,reso):
-            ox.append(i)
-            oy.append(j)
+    for i in np.arange(1.5,4.5,reso):
+        ox.append(10.0)
+        oy.append(i)
+
+    for i in np.arange(3.5,10.0,reso):
+        ox.append(i)
+        oy.append(4.5)
+
+    for i in np.arange(1.5,5.5,reso):
+        ox.append(-4.0)
+        oy.append(i)
+
+    for i in np.arange(1.5,5.5,reso):
+        ox.append(16.0)
+        oy.append(i)
+
+    for i in np.arange(-3.0,-2.0,reso):
+        ox.append(-4.0)
+        oy.append(i)
+
+    for i in np.arange(-3.0,-2.0,reso):
+        ox.append(8.0)
+        oy.append(i)
+
+    for i in np.arange(-4.0,8.0,reso):
+        ox.append(i)
+        oy.append(-3.0)
+
+    for i in np.arange(-4.0,16.0,reso):
+        ox.append(i)
+        oy.append(5.5)
+
 
     return ox,oy
 
-def isObstacled(x,y,obsmap,P,reso):
-    '''
-    determines whether a location is obstacled (returns True) or not (returns False).
-    Input:
-        - x,y   : coordinate location (unit: meter)
-        - obsmap: predefined obstacle map
-        - reso  : resolution of map
-    '''
-    x = x/reso
-    y = y/reso
 
-    idx_x = int(x-P.minx)
-    idx_y = int(y-P.miny)
+def my_design_obstacles_large(reso):
+    ox, oy = [], []
+
+
+    # walls around
+    for i in np.arange(-25.0,25.0,reso):
+        ox.append(i)
+        oy.append(25.0)
+
+    for i in np.arange(-25.0,25.0,reso):
+        ox.append(i)
+        oy.append(-25.0)
+
+    for i in np.arange(-25.0,25.0,reso):
+        ox.append(25.0)
+        oy.append(i)
     
-    # print(idx_x,idx_y)
+    for i in np.arange(-25.0,25.0,reso):
+        ox.append(-25.0)
+        oy.append(i)
 
-    haveObstacle = obsmap[idx_x][idx_y]
+    # obs1
+    for i in np.arange(1.0,5.0,reso):
+        ox.append(0.0)
+        oy.append(i)
 
-    return haveObstacle
+    for i in np.arange(1.0,5.0,reso):
+        ox.append(-1.0)
+        oy.append(i)
+
+    for i in np.arange(-1.0,0.0,reso):
+        ox.append(i)
+        oy.append(1.0)
+
+    for i in np.arange(-1.0,0.0,reso):
+        ox.append(i)
+        oy.append(5.0)
+
+    # obs2
+    for i in np.arange(-5.0,-1.0,reso):
+        ox.append(0.0)
+        oy.append(i)
+
+    for i in np.arange(-5.0,-1.0,reso):
+        ox.append(-1.0)
+        oy.append(i)
+
+    for i in np.arange(-1.0,0.0,reso):
+        ox.append(i)
+        oy.append(-1.0)
+
+    for i in np.arange(-1.0,0.0,reso):
+        ox.append(i)
+        oy.append(-5.0)
+
+    # obs3
+    for i in np.arange(-5.0,-1.0,reso):
+        ox.append(-2.5)
+        oy.append(i)
+
+    for i in np.arange(-5.0,-1.0,reso):
+        ox.append(-3.5)
+        oy.append(i)
+
+    for i in np.arange(-3.5,-2.5,reso):
+        ox.append(i)
+        oy.append(-1.0)
+
+    for i in np.arange(-3.5,-2.5,reso):
+        ox.append(i)
+        oy.append(-5.0)
+
+    # obs4
+    for i in np.arange(1.0,5.0,reso):
+        ox.append(-7.0)
+        oy.append(i)
+
+    for i in np.arange(1.0,5.0,reso):
+        ox.append(-8.0)
+        oy.append(i)
+
+    for i in np.arange(-8.0,-7.0,reso):
+        ox.append(i)
+        oy.append(1.0)
+
+    for i in np.arange(-8.0,-7.0,reso):
+        ox.append(i)
+        oy.append(5.0)
+
+    # obs5
+    for i in np.arange(-5.0,-1.0,reso):
+        ox.append(-7.5)
+        oy.append(i)
+
+    for i in np.arange(-5.0,-1.0,reso):
+        ox.append(-8.5)
+        oy.append(i)
+
+    for i in np.arange(-8.5,-7.5,reso):
+        ox.append(i)
+        oy.append(-1.0)
+
+    for i in np.arange(-8.5,-7.5,reso):
+        ox.append(i)
+        oy.append(-5.0)
+
+    # obs6
+    for i in np.arange(-4.0,-0.5,reso):
+        ox.append(-9.5)
+        oy.append(i)
+
+    for i in np.arange(-4.0,-0.5,reso):
+        ox.append(-10.5)
+        oy.append(i)
+
+    for i in np.arange(-10.5,-9.5,reso):
+        ox.append(i)
+        oy.append(-0.5)
+
+    for i in np.arange(-10.5,-9.5,reso):
+        ox.append(i)
+        oy.append(-4.0)
+
+    # obs7
+    for i in np.arange(0.5,4.5,reso):
+        ox.append(-12.0)
+        oy.append(i)
+
+    for i in np.arange(0.5,4.5,reso):
+        ox.append(-13.0)
+        oy.append(i)
+
+    for i in np.arange(-13.0,-12.0,reso):
+        ox.append(i)
+        oy.append(0.5)
+
+    for i in np.arange(-13.0,-12.0,reso):
+        ox.append(i)
+        oy.append(4.5)
+
+    # obs8
+    for i in np.arange(0.5,4.5,reso):
+        ox.append(-16.0)
+        oy.append(i)
+
+    for i in np.arange(0.5,4.5,reso):
+        ox.append(-17.0)
+        oy.append(i)
+
+    for i in np.arange(-17.0,-16.0,reso):
+        ox.append(i)
+        oy.append(0.5)
+
+    for i in np.arange(-17.0,-16.0,reso):
+        ox.append(i)
+        oy.append(4.5)
+    
+    # obs9
+    for i in np.arange(-5.0,-0.5,reso):
+        ox.append(-19.5)
+        oy.append(i)
+
+    for i in np.arange(-5.0,-0.5,reso):
+        ox.append(-18.5)
+        oy.append(i)
+
+    for i in np.arange(-19.5,-18.5,reso):
+        ox.append(i)
+        oy.append(-0.5)
+
+    for i in np.arange(-19.5,-18.5,reso):
+        ox.append(i)
+        oy.append(-5.0)
+
+    # obs10
+    for i in np.arange(-5.0,-1.0,reso):
+        ox.append(-22.0)
+        oy.append(i)
+
+    for i in np.arange(-5.0,-1.0,reso):
+        ox.append(-21.0)
+        oy.append(i)
+
+    for i in np.arange(-22.0,-21.0,reso):
+        ox.append(i)
+        oy.append(-1.0)
+
+    for i in np.arange(-22.0,-21.0,reso):
+        ox.append(i)
+        oy.append(-5.0)
+
+    # obs11
+    for i in np.arange(1.0,5.0,reso):
+        ox.append(-22.0)
+        oy.append(i)
+
+    for i in np.arange(1.0,5.0,reso):
+        ox.append(-21.0)
+        oy.append(i)
+
+    for i in np.arange(-22.0,-21.0,reso):
+        ox.append(i)
+        oy.append(1.0)
+
+    for i in np.arange(-22.0,-21.0,reso):
+        ox.append(i)
+        oy.append(5.0)
+
+    # obs12
+    for i in np.arange(1.0,5.0,reso):
+        ox.append(3.5)
+        oy.append(i)
+
+    for i in np.arange(1.0,5.0,reso):
+        ox.append(4.5)
+        oy.append(i)
+
+    for i in np.arange(3.5,4.5,reso):
+        ox.append(i)
+        oy.append(1.0)
+
+    for i in np.arange(3.5,4.5,reso):
+        ox.append(i)
+        oy.append(5.0)
+
+    # obs13
+    for i in np.arange(-5.0,6.0,reso):
+        ox.append(5.35)
+        oy.append(i)
+
+    for i in np.arange(-5.0,6.0,reso):
+        ox.append(5.85)
+        oy.append(i)
+
+    # obs14
+    for i in np.arange(13.0,20.0,reso):
+        ox.append(17.0)
+        oy.append(i)
+
+    for i in np.arange(13.0,20.0,reso):
+        ox.append(24.0)
+        oy.append(i)
+
+    for i in np.arange(17.0,24.0,reso):
+        ox.append(i)
+        oy.append(13.0)
+
+    for i in np.arange(17.0,24.0,reso):
+        ox.append(i)
+        oy.append(20.0)
+    
+    # obs15
+    for i in np.arange(0.0,3.0,reso):
+        ox.append(16.0)
+        oy.append(i)
+
+    for i in np.arange(0.0,3.0,reso):
+        ox.append(24.0)
+        oy.append(i)
+
+    for i in np.arange(16.0,21.0,reso):
+        ox.append(i)
+        oy.append(0.0)
+
+    for i in np.arange(16.0,24.0,reso):
+        ox.append(i)
+        oy.append(3.0)
+
+    # obs16
+    for i in np.arange(-18.0,0.0,reso):
+        ox.append(21.0)
+        oy.append(i)
+
+    for i in np.arange(-18.0,0.0,reso):
+        ox.append(24.0)
+        oy.append(i)
+
+    for i in np.arange(21.0,24.0,reso):
+        ox.append(i)
+        oy.append(-18.0)
+
+    # obs17
+    for i in np.arange(-5.0,-4.0,reso):
+        ox.append(17.5)
+        oy.append(i)
+
+    for i in np.arange(-5.0,-4.0,reso):
+        ox.append(20.5)
+        oy.append(i)
+
+    for i in np.arange(17.5,20.5,reso):
+        ox.append(i)
+        oy.append(-5.0)
+
+    for i in np.arange(17.5,20.5,reso):
+        ox.append(i)
+        oy.append(-4.0)
+    
+    # obs18
+    for i in np.arange(-6.5,-5.5,reso):
+        ox.append(17.5)
+        oy.append(i)
+
+    for i in np.arange(-6.5,-5.5,reso):
+        ox.append(20.5)
+        oy.append(i)
+
+    for i in np.arange(17.5,20.5,reso):
+        ox.append(i)
+        oy.append(-6.5)
+
+    for i in np.arange(17.5,20.5,reso):
+        ox.append(i)
+        oy.append(-5.5)
+
+    # obs19
+    for i in np.arange(-12.0,-11.0,reso):
+        ox.append(17.5)
+        oy.append(i)
+
+    for i in np.arange(-12.0,-11.0,reso):
+        ox.append(20.5)
+        oy.append(i)
+
+    for i in np.arange(17.5,20.5,reso):
+        ox.append(i)
+        oy.append(-11.0)
+
+    for i in np.arange(17.5,20.5,reso):
+        ox.append(i)
+        oy.append(-12.0)
+    
+    # obs20
+    for i in np.arange(-14.5,-13.5,reso):
+        ox.append(17.5)
+        oy.append(i)
+
+    for i in np.arange(-14.5,-13.5,reso):
+        ox.append(20.5)
+        oy.append(i)
+
+    for i in np.arange(17.5,20.5,reso):
+        ox.append(i)
+        oy.append(-14.5)
+
+    for i in np.arange(17.5,20.5,reso):
+        ox.append(i)
+        oy.append(-13.5)
+
+    # obs21
+    for i in np.arange(-17.0,-16.0,reso):
+        ox.append(17.5)
+        oy.append(i)
+
+    for i in np.arange(-17.0,-16.0,reso):
+        ox.append(20.5)
+        oy.append(i)
+
+    for i in np.arange(17.5,20.5,reso):
+        ox.append(i)
+        oy.append(-17.0)
+
+    for i in np.arange(17.5,20.5,reso):
+        ox.append(i)
+        oy.append(-16.0)
+
+    # obs22
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(8.0)
+        oy.append(i)
+
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(9.0)
+        oy.append(i)
+
+    for i in np.arange(8.0,9.0,reso):
+        ox.append(i)
+        oy.append(15.5)
+
+    for i in np.arange(17.5,20.5,reso):
+        ox.append(i)
+        oy.append(19.5)
+
+    # obs23
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(5.5)
+        oy.append(i)
+
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(6.5)
+        oy.append(i)
+
+    for i in np.arange(5.5,6.5,reso):
+        ox.append(i)
+        oy.append(15.5)
+
+    for i in np.arange(5.5,6.5,reso):
+        ox.append(i)
+        oy.append(19.5)
+
+    # obs24
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(0.5)
+        oy.append(i)
+
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(1.5)
+        oy.append(i)
+
+    for i in np.arange(0.5,1.5,reso):
+        ox.append(i)
+        oy.append(15.5)
+
+    for i in np.arange(0.5,1.5,reso):
+        ox.append(i)
+        oy.append(19.5)
+
+    # obs25
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(-10.5)
+        oy.append(i)
+
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(-9.5)
+        oy.append(i)
+
+    for i in np.arange(-10.5,-9.5,reso):
+        ox.append(i)
+        oy.append(15.5)
+
+    for i in np.arange(-10.5,-9.5,reso):
+        ox.append(i)
+        oy.append(19.5)
+
+
+    # obs26
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(-18.5)
+        oy.append(i)
+
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(-17.5)
+        oy.append(i)
+
+    for i in np.arange(-18.5,-17.5,reso):
+        ox.append(i)
+        oy.append(15.5)
+
+    for i in np.arange(-18.5,-17.5,reso):
+        ox.append(i)
+        oy.append(19.5)
+
+    # obs27
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(-21.0)
+        oy.append(i)
+
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(-20.0)
+        oy.append(i)
+
+    for i in np.arange(-21.0,-20.0,reso):
+        ox.append(i)
+        oy.append(15.5)
+
+    for i in np.arange(-21.0,-20.0,reso):
+        ox.append(i)
+        oy.append(19.5)
+
+    # obs28
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(-21.5)
+        oy.append(i)
+
+    for i in np.arange(15.5,19.5,reso):
+        ox.append(-22.5)
+        oy.append(i)
+
+    for i in np.arange(-22.5,-21.5,reso):
+        ox.append(i)
+        oy.append(15.5)
+
+    for i in np.arange(-22.5,-21.5,reso):
+        ox.append(i)
+        oy.append(19.5)
+
+    # obs29
+    for i in np.arange(-2.0,8.0,reso):
+        ox.append(i)
+        oy.append(-11.5)
+
+    for i in np.arange(-2.0,8.0,reso):
+        ox.append(i)
+        oy.append(-12.5)
+
+    # obs30
+    for i in np.arange(-2.0,4.0,reso):
+        ox.append(i)
+        oy.append(-16.5)
+
+    for i in np.arange(-2.0,4.0,reso):
+        ox.append(i)
+        oy.append(-17.5)
+
+    # obs31
+    for i in np.arange(-18.0,-11.0,reso):
+        ox.append(-8.5)
+        oy.append(i)
+
+    # obs32
+    for i in np.arange(-18.0,-13.0,reso):
+        ox.append(-11.0)
+        oy.append(i)
+    for i in np.arange(-18.0,-13.0,reso):
+        ox.append(-10.0)
+        oy.append(i)
+
+    # obs33
+    for i in np.arange(-18.0,-13.0,reso):
+        ox.append(-13.5)
+        oy.append(i)
+    for i in np.arange(-18.0,-13.0,reso):
+        ox.append(-12.5)
+        oy.append(i)
+
+
+
+    return ox,oy
+
+
+
+# def isObstacled(x,y,obsmap,P,reso):
+#     '''
+#     determines whether a location is obstacled (returns True) or not (returns False).
+#     Input:
+#         - x,y   : coordinate location (unit: meter)
+#         - obsmap: predefined obstacle map
+#         - reso  : resolution of map
+#     '''
+#     x = x/reso
+#     y = y/reso
+
+#     idx_x = int(x-P.minx)
+#     idx_y = int(y-P.miny)
+    
+#     # print(idx_x,idx_y)
+
+#     haveObstacle = obsmap[idx_x][idx_y]
+
+#     return haveObstacle
 
 
 # if __name__=='__main__':

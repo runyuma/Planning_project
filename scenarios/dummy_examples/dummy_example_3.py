@@ -75,7 +75,10 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
 
     obs_states = []
 
-    env.add_shapes(shape_type='GEOM_BOX',dim=[5.5,2.0,2.0],poses_2d=[[-1.25,2.0,0.0]],place_height=0.)
+    env.add_shapes(shape_type='GEOM_BOX',dim=[12.0,1.0,2.0],poses_2d=[[2.0,-2.5,0.0]],place_height=0.)
+    env.add_shapes(shape_type='GEOM_BOX',dim=[7.5,3.0,2.0],poses_2d=[[-0.25,3.0,0.0]],place_height=0.)
+    env.add_shapes(shape_type='GEOM_BOX',dim=[6.0,3.0,2.0],poses_2d=[[13.0,3.0,0.0]],place_height=0.)
+    env.add_shapes(shape_type='GEOM_BOX',dim=[20.0,1.0,2.0],poses_2d=[[6.0,5.0,0.0]],place_height=0.)
 
     print(f"Initial observation : {ob}")
     history = []
@@ -93,6 +96,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     return history
 
 if __name__ == "__main__":
+
 
     run_prius(render=True)
 

@@ -1,4 +1,4 @@
-from obstacle_map import get_env_simple, calc_parameters, calc_parameters_arxiv
+from obstacle_map import my_design_obstacles_small, calc_parameters, calc_parameters_arxiv
 import reeds_shepp as rs
 import draw
 
@@ -509,63 +509,6 @@ def hybrid_astar_planning(sx, sy, syaw, gx, gy, gyaw, ox, oy, xyreso, yawreso):
     return extract_path(closed_set, fnode, nstart)
 
 
-def my_design_obstacles(reso):
-    ox, oy = [], []
-
-    # the simple obstacled environment
-
-    for i in np.arange(-4.0,3.5,reso):
-        ox.append(i)
-        oy.append(1.5)
-
-    for i in np.arange(10.0,16.0,reso):
-        ox.append(i)
-        oy.append(1.5)
-    
-    for i in np.arange(-4.0,8.0,reso):
-        ox.append(i)
-        oy.append(-2.0)
-
-    for i in np.arange(1.5,4.5,reso):
-        ox.append(3.5)
-        oy.append(i)
-
-    for i in np.arange(1.5,4.5,reso):
-        ox.append(10.0)
-        oy.append(i)
-
-    for i in np.arange(3.5,10.0,reso):
-        ox.append(i)
-        oy.append(4.5)
-
-    for i in np.arange(1.5,5.5,reso):
-        ox.append(-4.0)
-        oy.append(i)
-
-    for i in np.arange(1.5,5.5,reso):
-        ox.append(16.0)
-        oy.append(i)
-
-    for i in np.arange(-3.0,-2.0,reso):
-        ox.append(-4.0)
-        oy.append(i)
-
-    for i in np.arange(-3.0,-2.0,reso):
-        ox.append(8.0)
-        oy.append(i)
-
-    for i in np.arange(-4.0,8.0,reso):
-        ox.append(i)
-        oy.append(-3.0)
-
-    for i in np.arange(-4.0,16.0,reso):
-        ox.append(i)
-        oy.append(5.5)
-
-
-    return ox,oy
-
-
 if __name__=='__main__':
 
     print("start!")
@@ -575,7 +518,7 @@ if __name__=='__main__':
 
     reso = 0.1
 
-    ox, oy = my_design_obstacles(reso)
+    ox, oy = my_design_obstacles_small(reso)
 
     # rr = 0.1 # car radius
     t0 = time.time()
