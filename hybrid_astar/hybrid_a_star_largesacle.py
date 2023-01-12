@@ -48,8 +48,8 @@ class C:  # Parameter config
     EXTEND_BOUND = 1  # collision check range extended
 
     RECTIF = 1.0
-    GEAR_COST = 10.0 * RECTIF # switch back penalty cost
-    BACKWARD_COST = 10.0 * RECTIF # backward penalty cost
+    GEAR_COST = 5.0 * RECTIF # switch back penalty cost
+    BACKWARD_COST = 50.0 * RECTIF # backward penalty cost
     STEER_CHANGE_COST = 5.0 * RECTIF # steer angle change penalty cost
     STEER_ANGLE_COST = 1.0 * RECTIF # steer angle penalty cost
     H_COST = 15.0 * RECTIF # Heuristic cost penalty cost
@@ -512,8 +512,10 @@ if __name__=='__main__':
 
     print("start!")
 
-    sx, sy, syaw0 = -10.0, 2.5, np.deg2rad(90.0)
-    gx, gy, gyaw0 = 18.0, -9., np.deg2rad(180.0)
+    # sx, sy, syaw0 = -10.0, 4.0, np.deg2rad(-90.0)
+    # gx, gy, gyaw0 = 16.5, -9., np.deg2rad(0.0)
+    sx, sy, syaw0 = 16.5, -9., np.deg2rad(0.0)
+    gx, gy, gyaw0 = -10.0, 4.0, np.deg2rad(-90.0)
 
     reso = 0.5
 
