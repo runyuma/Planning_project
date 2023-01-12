@@ -57,7 +57,7 @@ elif environemtn == COMPLEX:
             "xlim ": (-25, 25),
             "ylim ": (-25, 25),
             }
-    state = bicycle_model.ROBOT_STATE(x=-10, y=3.9, yaw=1.57, v=0.0)
+    state = bicycle_model.ROBOT_STATE(x=18, y=-9, yaw=0, v=0.0)
 T = test_param["T"]
 Tf = test_param["Tf"]  # prediction horizon
 N = test_param["N"]  # number of discretization steps
