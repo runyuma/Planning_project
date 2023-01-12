@@ -107,6 +107,8 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
         "approximate_acc": 0.2,
         "max_acc": 1.0,
         "max_steer_vel": 0.6,
+        "xlim ": (0, 12),
+        "ylim ": (-6, 6),
     }
     T = test_param["T"]
     Tf = test_param["Tf"]  # prediction horizon
@@ -125,7 +127,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
             ob, _, _, _ = env.step(action)
             state.get_state(ob)
             # time.sleep(0.01)
-        mpc.visualize(ref, x_pred)
+        mpc.visualize(ref, x_pred,test_param["xlim "],test_param["ylim "])
         history.append(ob)
     env.close()
     return history

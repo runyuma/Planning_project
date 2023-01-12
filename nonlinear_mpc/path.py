@@ -151,8 +151,9 @@ def get_velprofile(path, target_speed,dv):
                         speed_profile[i + j] = - dv * j
                     else:
                         speed_profile[i - j] = -j * dv
-                        speed_profile[i + j] = dv * j
-                    # print(i,j)
+                        if i + j < len(cx):
+                            speed_profile[i + j] = dv * j
+                    # print(len(cx)-1,i,j)
     for j in range(int(target_speed/dv)):
         if direction[1] > 0:
             speed_profile[j] = j * dv

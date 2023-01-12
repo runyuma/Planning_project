@@ -36,12 +36,12 @@ class mpc_controller():
         u = [self.acados_solver.get(j, "u") for j in range(N)]
 
         return u[0],ref,x_pred
-    def visualize(self,ref,x_pred):
+    def visualize(self,ref,x_pred,xlim,ylim):
         plt.cla()
         mpc_plot.plot_mpc(self.astarpath.cx, self.astarpath.cy, self.astarpath.cyaw, ref, x_pred,
                           self.speed_profile)
         mpc_plot.draw_car(self.state.x, self.state.y, self.state.yaw, self.state.delta)
-        plt.xlim(0, 12)
-        plt.ylim(-6, 6)
+        plt.xlim(xlim[0], xlim[1])
+        plt.ylim(ylim[0], ylim[1])
         plt.title("Linear MPC, " + "v = " + str(self.state.v) + "\n delta = " + str(self.state.delta))
         plt.pause(0.01)

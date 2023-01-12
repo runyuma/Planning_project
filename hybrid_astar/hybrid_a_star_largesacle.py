@@ -49,7 +49,7 @@ class C:  # Parameter config
 
     RECTIF = 1.0
     GEAR_COST = 10.0 * RECTIF # switch back penalty cost
-    BACKWARD_COST = 15.0 * RECTIF # backward penalty cost
+    BACKWARD_COST = 10.0 * RECTIF # backward penalty cost
     STEER_CHANGE_COST = 5.0 * RECTIF # steer angle change penalty cost
     STEER_ANGLE_COST = 1.0 * RECTIF # steer angle penalty cost
     H_COST = 15.0 * RECTIF # Heuristic cost penalty cost
@@ -71,7 +71,7 @@ class C:  # Parameter config
     WB = 2.85   * RESIZE # [m] Wheel base
     TR = 0.31265 * RESIZE
     TW = 0.4 * RESIZE
-    MAX_STEER = 0.6 # [rad] maximum steering angle
+    MAX_STEER = 0.3 # [rad] maximum steering angle
 
 
 class Path:
