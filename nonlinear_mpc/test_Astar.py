@@ -41,8 +41,8 @@ elif environemtn == COMPLEX:
     speed_profile = path.get_velprofile(hybridastar_path, 2., 0.4)
     test_param = test_param ={
             "T":60,
-            "N":6,   # Predict Horizon
-            "Tf":2.4,  # dim of state space
+            "N":10,   # Predict Horizon
+            "Tf":4,  # dim of state space
             "dt":0.4, #time step
             "d_dist":0.4/4,#todo:distance between nodes
             "N_IND":10, # search index number
@@ -58,6 +58,8 @@ elif environemtn == COMPLEX:
             "ylim ": (-25, 25),
             }
     state = bicycle_model.ROBOT_STATE(x=18, y=-9, yaw=0, v=0.0)
+    obs = []
+    obs.append(obstacle.circle(0,15.5,2))
 T = test_param["T"]
 Tf = test_param["Tf"]  # prediction horizon
 N = test_param["N"]  # number of discretization steps
@@ -66,7 +68,8 @@ radius = test_param["radius"]
 Nsim = int(T * N / Tf)
 if __name__ == '__main__':
     # 1. initialize
-    mpc = mpc_controller(hybridastar_path, test_param, state,speed_profile)
+
+    mpc = mpc_controller(hybridastar_path, test_param, state,speed_profile,obs)
     # 2. simulate
     for i in range(Nsim):
         u,ref,x_pred = mpc.control()

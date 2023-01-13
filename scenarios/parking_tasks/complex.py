@@ -81,12 +81,12 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     a = np.load("hybrid_astar/ref_largescale_dummy.npy")
     x, y, yaw, direction = a[:, 0], a[:, 1], a[:, 2], a[:, 3]
     hybridastar_path = nonlinear_mpc.path.PATH(x, y, yaw, 3)
-    speed_profile = nonlinear_mpc.path.get_velprofile(hybridastar_path, 2., 0.4)
+    speed_profile = nonlinear_mpc.path.get_velprofile(hybridastar_path, 2., 0.2)
     test_param = test_param = {
         "T": 60,
-        "N": 6,  # Predict Horizon
-        "Tf": 2.4,  # dim of state space
-        "dt": 0.4,  # time step
+        "N": 12,  # Predict Horizon
+        "Tf": 6,  # dim of state space
+        "dt": 0.5,  # time step
         "d_dist": 0.4 / 4,  # todo:distance between nodes
         "N_IND": 10,  # search index number
         "lr": 1.425,
@@ -108,8 +108,9 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     radius = test_param["radius"]
     Nsim = int(T * N / Tf)
     state.get_state(ob)
-    obstacles = []
-    mpc = mpc_controller(hybridastar_path, test_param, state, speed_profile,obstacles)
+    obs = []
+    obs.append(nonlinear_mpc.obstacle.circle(0, 15, 2))
+    mpc = mpc_controller(hybridastar_path, test_param, state, speed_profile,obs)
     for i in range(n_steps):
         u, ref, x_pred = mpc.control()
         acc = u[0]

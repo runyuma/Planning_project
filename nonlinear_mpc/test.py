@@ -22,7 +22,7 @@ state = bicycle_model.ROBOT_STATE(x=10.0, y=7.0, yaw=2.09, v=0.0)
 init_state = np.array([state.x,state.y,state.v,state.yaw,state.delta])
 
 
-constraint, model, acados_solver = acados_settings(Tf, N, init_state)
+constraint, model, acados_solver = acados_settings(Tf, N, init_state,3)
 obstacles = []
 obstacles.append(obstacle.box(45, 14.5,0, 10, 2))
 obstacles.append(obstacle.box(45, 21,0, 10, 2))
@@ -59,10 +59,10 @@ for i in range(Nsim):
     for j in range(N+1):
         hyperplanes = []
         for obs in obstacles:
-            obs.plot(plt)
+            obs.plot()
             h = obs.find_hyperplane(state, ref[:,j], 1.25)
             if h is not None:
-                obs.draw_hyperplane(h, plt)
+                obs.draw_hyperplane(h)
             hyperplanes.append(h)
             print("h:",h)
         constraint_num = len(hyperplanes)

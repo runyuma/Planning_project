@@ -15,10 +15,10 @@ class box:
         self.box[1, :] = [y - np.cos(yaw)*width/2-np.sin(yaw)*length/2, y + np.cos(yaw)*width/2-np.sin(yaw)*length/2,
                           y + np.cos(yaw)*width/2+np.sin(yaw)*length/2, y - np.cos(yaw)*width/2+np.sin(yaw)*length/2]
         # print(self.box,)
-    def plot(self, ax):
+    def plot(self):
         # print(self.box)
-        ax.plot(self.box[0, :], self.box[1, :], "b")
-        ax.plot([self.box[0, -1],self.box[0, 0]], [self.box[1, -1],self.box[1, 0]], "b")
+        plt.plot(self.box[0, :], self.box[1, :], "b")
+        plt.plot([self.box[0, -1],self.box[0, 0]], [self.box[1, -1],self.box[1, 0]], "b")
 
     def find_hyperplane(self, robot_state, ref, r):
         dists2D = self.box - np.array([robot_state.x, robot_state.y]).reshape(2, 1)
@@ -71,11 +71,11 @@ class box:
                 h[2] = -h[1] * fixed_point[1] - h[0] * fixed_point[0]
             # print(3)
         # h = h / np.linalg.norm(h)
-        plt.scatter(fixed_point[0], fixed_point[1], c="g")
+        # plt.scatter(fixed_point[0], fixed_point[1], c="g")
         # print(point_num, start_angle, dist_angle, pi_2_pi(dist_angle - start_angle),fixed_point)
         print(h[0] * robot_state.x + h[1] * robot_state.y + h[2])
         return h
-    def draw_hyperplane(self,h,ax):
+    def draw_hyperplane(self,h):
         if h is not None:
             x1 = self.x - 10
             x2 = self.x + 10
@@ -85,7 +85,7 @@ class box:
             else:
                 y1 = -(h[2] + h[0] * x1) / (h[1]+0.001)
                 y2 = -(h[2] + h[0] * x2) / (h[1]+0.001)
-            ax.plot([x1, x2], [y1, y2], "r")
+            plt.plot([x1, x2], [y1, y2], "r")
 
 
 class circle:
@@ -97,8 +97,9 @@ class circle:
         for i in range(100):
             self.circle[0, i] = x + radius * np.cos(i * 2 * np.pi / 100)
             self.circle[1, i] = y + radius * np.sin(i * 2 * np.pi / 100)
-    def plot(self, ax):
-        ax.plot(self.circle[0, :], self.circle[1, :], "b")
+    def plot(self):
+        # print("plot circle")
+        plt.plot(self.circle[0, :], self.circle[1, :], "b")
     def find_hyperplane(self,robot_state,ref,r):
         # find the hyperplane that is tangent to the circle
         # r is the point on the circle
@@ -132,13 +133,13 @@ class circle:
 
         # print(np.sign(h[0]*robot_state.x+h[1]*robot_state.y+h[2]))
         return h
-    def draw_hyperplane(self,h,ax):
+    def draw_hyperplane(self,h):
         if h is not None:
             x1 = self.x - 10
             x2 = self.x + 10
             y1 = -(h[2] + h[0] * x1) / h[1]
             y2 = -(h[2] + h[0] * x2) / h[1]
-            ax.plot([x1, x2], [y1, y2], "r")
+            plt.plot([x1, x2], [y1, y2], "r")
 def pi_2_pi(angle):
     return (angle + np.pi) % (2 * np.pi) - np.pi
 if __name__ == "__main__":
