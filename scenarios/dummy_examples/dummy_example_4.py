@@ -11,7 +11,7 @@ from obstacled_environments.complex_parking_lot import urdf_complex_env
 from obstacled_environments.common.prius import Prius
 from obstacled_environments.common.generic_urdf import GenericUrdfReacher
 import numpy as np
-import pandas as pd
+# import pandas as pd
 from nonlinear_mpc.acados_settings import *
 import nonlinear_mpc.bicycle_model
 import nonlinear_mpc.mpc_plot
@@ -21,49 +21,49 @@ import nonlinear_mpc.path
 import time
 
 
-def getDiffActions(npy_filename):
+# def getDiffActions(npy_filename):
 
-    diff_action = []
-    dT = 0.4 # timestep of MPC control input
-    data_tmp = np.load(npy_filename)
-    acc = data_tmp[:,0]
-    d_delta = data_tmp[:,1]
-    # print(acc.shape)
-    sim_time = np.zeros(acc.shape[0])
-    for i in range(acc.shape[0]):
-        sim_time[i] = dT * i
-        sim_time[i] = round(sim_time[i],2)
+#     diff_action = []
+#     dT = 0.4 # timestep of MPC control input
+#     data_tmp = np.load(npy_filename)
+#     acc = data_tmp[:,0]
+#     d_delta = data_tmp[:,1]
+#     # print(acc.shape)
+#     sim_time = np.zeros(acc.shape[0])
+#     for i in range(acc.shape[0]):
+#         sim_time[i] = dT * i
+#         sim_time[i] = round(sim_time[i],2)
 
-    acc = acc.transpose().tolist()
-    d_delta = d_delta.transpose().tolist()
-    sim_time = sim_time.transpose().tolist()
-    # print(sim_time)
+#     acc = acc.transpose().tolist()
+#     d_delta = d_delta.transpose().tolist()
+#     sim_time = sim_time.transpose().tolist()
+#     # print(sim_time)
 
-    collected = {'acc':acc,'d_delta':d_delta,'sim_time':sim_time}
-    # print(collected)
-    diff_action = pd.DataFrame(collected,dtype=float,index=sim_time)
+#     collected = {'acc':acc,'d_delta':d_delta,'sim_time':sim_time}
+#     # print(collected)
+#     diff_action = pd.DataFrame(collected,dtype=float,index=sim_time)
 
-    return diff_action
+#     return diff_action
 
-def getActionUpdate(action, k, diff_action):
+# def getActionUpdate(action, k, diff_action):
 
-    dT_gym = 0.01
-    current_time = k*dT_gym
+#     dT_gym = 0.01
+#     current_time = k*dT_gym
 
-    idx = round(0.4*float(int(current_time/0.4)),2) # the current time (resolution is 0.4s), is used as index to find proper acc and d_delta
-    # print(idx.dtype)
-    acc = diff_action.loc[idx,'acc']
-    d_delta = diff_action.loc[idx,'d_delta']
+#     idx = round(0.4*float(int(current_time/0.4)),2) # the current time (resolution is 0.4s), is used as index to find proper acc and d_delta
+#     # print(idx.dtype)
+#     acc = diff_action.loc[idx,'acc']
+#     d_delta = diff_action.loc[idx,'d_delta']
 
-    action[0] = action[0] + dT_gym*acc
-    action[1] = action[1] + dT_gym*d_delta
+#     action[0] = action[0] + dT_gym*acc
+#     action[1] = action[1] + dT_gym*d_delta
 
-    return action
+#     return action
 
 def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
 
     f_name = os.path.join(os.path.dirname(__file__), 'seq_small1.npy')
-    diff_action = getDiffActions(f_name) # every line of the 'seq.npy' is [longitudinal_accl, d_delta]
+    # diff_action = getDiffActions(f_name) # every line of the 'seq.npy' is [longitudinal_accl, d_delta]
 
     # print('----------test----------')
     # print(diff_action.loc[0.4,'acc'])
