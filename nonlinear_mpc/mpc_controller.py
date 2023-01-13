@@ -8,12 +8,13 @@ import nonlinear_mpc.mpc_plot as mpc_plot
 import nonlinear_mpc.obstacle as obstacle
 
 class mpc_controller():
-    def __init__(self,astarpath,param,init_state,speed_profile):
+    def __init__(self,astarpath,param,init_state,speed_profile,obstacle):
         self.astarpath = astarpath
         self.param = param
         self.state = init_state
         init_state_array = np.array([init_state.x, init_state.y, init_state.v, init_state.yaw, init_state.delta])
-        self.constraint, self.model,self.acados_solver = acados_settings(self.param["Tf"], self.param["N"], init_state_array)
+        obstacle_num = len(obstacle)
+        self.constraint, self.model,self.acados_solver = acados_settings(self.param["Tf"], self.param["N"], init_state_array, obstacle_num)
         self.speed_profile = speed_profile
     def control(self):
         N = self.param["N"]
@@ -31,7 +32,8 @@ class mpc_controller():
         self.acados_solver.set(N, "yref", np.array(ref[:, N]))
         status = self.acados_solver.solve()
         if status != 0:
-            print("acados returned status {} in closed loop iteration {}.".format(status, i))
+            print("wrong")
+            # print("acados returned status {} in closed loop iteration {}.".format(status, i))
         x_pred = [self.acados_solver.get(j, "x") for j in range(N + 1)]
         u = [self.acados_solver.get(j, "u") for j in range(N)]
 

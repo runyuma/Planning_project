@@ -108,7 +108,7 @@ for i in range(Nsim):
     print("x_pred",x_pred)
     state.state_update(u[0][0],u[0][1],test_param)
 
-    mpc_plot.plot_mpc(test_path.cx, test_path.cy, test_path.cyaw, ref, x_pred, u, speed_profile)
+    mpc_plot.plot_mpc(test_path.cx, test_path.cy, test_path.cyaw, ref, x_pred, speed_profile)
 
     mpc_plot.draw_car(state.x, state.y, state.yaw, state.delta)
     plt.xlim(0, 50)
