@@ -112,6 +112,8 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     obs.append(nonlinear_mpc.obstacle.circle(0, 15, 2))
     mpc = mpc_controller(hybridastar_path, test_param, state, speed_profile,obs)
     for i in range(n_steps):
+        # refine obstacle and update obs = []
+        mpc_controller.update_obstacles(obs)
         u, ref, x_pred = mpc.control()
         acc = u[0]
         delta_dot = u[1]

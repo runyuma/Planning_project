@@ -41,6 +41,8 @@ class mpc_controller():
         u = [self.acados_solver.get(j, "u") for j in range(N)]
 
         return u[0],ref,x_pred
+    def update_obstacles(self,obstacles):
+        self.obstacles = obstacles
     def frame_constraint(self,ref):
         disc_offset = self.param["disc_offset"]
         N = self.param["N"]
