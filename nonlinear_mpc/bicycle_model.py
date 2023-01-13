@@ -1,7 +1,7 @@
 import numpy as np
 from casadi import *
 
-def bicycle_model(initial_state):
+def bicycle_model(initial_state,constraint_num):
     constraint = types.SimpleNamespace()
     model = types.SimpleNamespace()
 
@@ -11,7 +11,6 @@ def bicycle_model(initial_state):
     L =  2.5
     disc_offset = 0.5
     radius = 1.25
-    constraint_num = 3
 
     x_ = MX.sym("x_")
     y_ = MX.sym("y_")

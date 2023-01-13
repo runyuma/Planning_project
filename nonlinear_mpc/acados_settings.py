@@ -6,7 +6,7 @@ import os
 # setting for acados
 # docs: https://acados.github.io/acados/python_interface.html
 # docs: https://acados.github.io/acados/ocp_nlp.html
-def acados_settings(Tf, N,initial_state):
+def acados_settings(Tf, N,initial_state,obstacle_num):
     """
     :param Tf: horizon length
     :param N: number of control intervals
@@ -15,7 +15,7 @@ def acados_settings(Tf, N,initial_state):
     ocp.dims.N = N
 
     # export model
-    model, constraint = bicycle_model(initial_state)
+    model, constraint = bicycle_model(initial_state,obstacle_num)
 
     # define acados ODE
     model_ac = AcadosModel()
