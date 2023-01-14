@@ -9,7 +9,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
 # print(sys.path)
 from obstacled_environments.complex_parking_lot import urdf_complex_env
 from obstacled_environments.common.prius import Prius
-from obstacled_environments.common.my_staticSubGoal import StaticSubGoal, GlobalStaticSubGoal
 from obstacled_environments.common.generic_urdf import GenericUrdfReacher
 from MotionPlanningEnv.dynamicSphereObstacle import DynamicSphereObstacle
 from obstacled_environments.common.my_staticSubGoal import StaticSubGoal
@@ -36,7 +35,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     ns_per_robot = env.ns_per_robot()
     pos0 = np.array([np.zeros(n) for n in ns_per_robot])
     pos0[0][0:2] = np.array([18.,-9.])
-    pos0[1][0:2] = np.array([-25.,15.])
+    pos0[1][0:3] = np.array([14.,15.,np.pi])
     action = np.zeros(n)
     action[2] = .8
     ob = env.reset(pos=pos0)
@@ -83,26 +82,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-13.5,-15.5,0.0]],place_height=0.)
     
     env.add_walls()
-    # ----------------------------------------------------------------------------------------------------
-    MPC_PRED_LEN = 12
-    obs_pred = np.zeros((MPC_PRED_LEN, 3))
-    mpc_preds_list = []
-    goals = []
-    goalids = []
 
-    for i in range(MPC_PRED_LEN):
-        goal1Dict = {
-            "weight": 1.0, "is_primary_goal": True, 'indices': [0, 1, 2], 'parent_link': 0, 'child_link': 3,
-            'desired_position': [0., 0, 0.], 'epsilon': 0.2, 'type': "staticSubGoal",
-        }
-        mpc_preds_list.append(goal1Dict)
-
-        goal = StaticSubGoal(name="goal" + str(i), content_dict=goal1Dict)
-        goals.append(goal)
-    for i in range(MPC_PRED_LEN):
-        goalid = env.add_goal_withreturn(goals[i])
-        goalids.append(goalid)
-    # ----------------------------------------------------------------------------------------------------
     print(f"Initial observation : {ob}")
     history = []
     a = np.load("hybrid_astar/ref_largescale_dummy.npy")
@@ -139,36 +119,22 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     obs.append(nonlinear_mpc.obstacle.circle(0, 15, 2))
     mpc = mpc_controller(hybridastar_path, test_param, state, speed_profile,obs)
     t = 0
-    for i in range(len(hybridastar_path.cx)):
-        if i%10==0:
-            goal2Dict = {
-                "weight": 1.0, "is_primary_goal": False, 'indices': [0, 1, 2], 'parent_link': 0, 'child_link': 3,
-                'desired_position': [np.float(round(hybridastar_path.cx[i],2)), np.float(round(hybridastar_path.cy[i],2)), 0.], 'epsilon': 0.5, 'type': "staticSubGoal",
-            }
-            goal = GlobalStaticSubGoal(name="global_goal"+str(i), content_dict=goal2Dict)
-            env.add_goal(goal)
     for i in range(n_steps):
         # refine obstacle and update obs = []
-        obs_x = -25 + 0.8 * t
-        obs = [nonlinear_mpc.obstacle.circle(obs_x, 15, 2)]
-        # obs_x = 22 - 1 * t
-        # obs = [nonlinear_mpc.obstacle.circle(obs_x, 14, 2)]
+        # obs_x = -25 + 0.8 * t
+        # obs = [nonlinear_mpc.obstacle.circle(obs_x, 15, 2)]
+        obs_x = 22 - 1 * t
+        obs = [nonlinear_mpc.obstacle.circle(obs_x, 14, 2)]
         mpc.update_obstacles(obs)
         u, ref, x_pred = mpc.control()
-        # ----------------------------------------------------------------------------------------------------
-        # dummy update new predictions
-        # update the goal dictionary used for
-        for j in range(MPC_PRED_LEN):
-            obs_pred[j][0] = x_pred[j][0]
-            obs_pred[j][1] = x_pred[j][1]
-            goals[j].update_position(obs_pred[j].tolist())
-            env.update_goal(goals[j], goalids[j])
-        # ----------------------------------------------------------------------------------------------------
         acc = u[0]
         delta_dot = u[1]
         for j in range(int(test_param["dt"] / 0.01)):
             v = state.v + acc * 0.01
-            action = [v, delta_dot,0.8,0]
+            if t>=8:
+                action = [v, delta_dot,1.,0]
+            else:
+                action = [v, delta_dot,0.,0]
             if abs(ob['robot_0']['joint_state']['steering']) > 0.4:
                 if np.sign(action[1]) == np.sign(ob['robot_0']['joint_state']['steering']):
                     action[1] = 0

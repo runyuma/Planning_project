@@ -116,7 +116,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     Nsim = int(T * N / Tf)
     state = nonlinear_mpc.bicycle_model.ROBOT_STATE(x=1.0125, y=0, yaw=0, v=0.0)
     state.get_state(ob)
-    mpc = mpc_controller(hybridastar_path, test_param, state, speed_profile)
+    mpc = mpc_controller(hybridastar_path, test_param, state, speed_profile,[])
     for i in range(Nsim):
         u, ref, x_pred = mpc.control()
         acc = u[0]

@@ -131,14 +131,15 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     # obs.append(nonlinear_mpc.obstacle.circle(0, 15, 2))
     mpc = mpc_controller(hybridastar_path, test_param, state, speed_profile,obs)
     t = 0
-
+    # print(hybridastar_path.cx[0].dtype)
     for i in range(len(hybridastar_path.cx)):
-        goal2Dict = {
-            "weight": 1.0, "is_primary_goal": False, 'indices': [0, 1, 2], 'parent_link': 0, 'child_link': 3,
-            'desired_position': [round(hybridastar_path.cx[i],2), round(hybridastar_path.cy[i],2), 0.], 'epsilon': 0.5, 'type': "staticSubGoal", 
-        }
-        goal = GlobalStaticSubGoal(name="global_goal"+str(i), content_dict=goal2Dict)
-        env.add_goal(goal)
+        if i%10==0:
+            goal2Dict = {
+                "weight": 1.0, "is_primary_goal": False, 'indices': [0, 1, 2], 'parent_link': 0, 'child_link': 3,
+                'desired_position': [np.float(round(hybridastar_path.cx[i],2)), np.float(round(hybridastar_path.cy[i],2)), 0.], 'epsilon': 0.5, 'type': "staticSubGoal",
+            }
+            goal = GlobalStaticSubGoal(name="global_goal"+str(i), content_dict=goal2Dict)
+            env.add_goal(goal)
     for i in range(n_steps):
         # refine obstacle and update obs = []
         # obs_x = -25 + 0.8 * t
@@ -166,7 +167,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
                     action[1] = 0
                     print("modified")
             ob, _, _, _ = env.step(action)
-            print(state.delta)
+            # print(state.delta)
             state.get_state(ob)
             t+=0.01
                 # time.sleep(0.01)

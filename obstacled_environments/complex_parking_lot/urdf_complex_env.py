@@ -351,7 +351,7 @@ class ComplexUrdfEnv(gym.Env):
         """
         if poses_2d is None:
             poses_2d = [
-                [-25.0, 0.1, 0],
+                [-28.0, 0.1, 0],
                 [25.0, -0.1, 0],
                 [0.1, 25.0, 0.5 * np.pi],
                 [-0.1, -25.0, 0.5 * np.pi],
