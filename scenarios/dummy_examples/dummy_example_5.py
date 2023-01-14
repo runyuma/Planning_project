@@ -17,18 +17,30 @@ from MotionPlanningEnv.dynamicSphereObstacle import DynamicSphereObstacle
 import numpy as np
 from obstacled_environments.common.my_staticSubGoal import StaticSubGoal, GlobalStaticSubGoal
 
-def run_prius(n_steps=1000, render=True, goal=True, obstacles=True):
+def run_prius(n_steps=1000, render=False, goal=True, obstacles=True):
     robots = [
+        Prius(mode="vel"),
         Prius(mode="vel"),
     ]
     env = gym.make(
         "simple-parking-lot-env-v0",
         dt=0.01, robots=robots, render=render
     )
-
-    action = np.array([1.0, 0.])
-    pos0 = np.array([1., 1.,0.])
+    n = env.n() # total length of action
+    n_per_robot = env.n_per_robot()
+    ns_per_robot = env.ns_per_robot()
+    
+    # print(ns_per_robot)
+    # print(n_per_robot)
+    pos0 = np.array([np.zeros(n) for n in ns_per_robot])
+    # print(pos0)
+    pos0[0][0:2] = np.array([18.,-9.])
+    pos0[1][0:2] = np.array([-25.,15.])
+    action = np.zeros(n)
+    action[2] = .8
+ 
     ob = env.reset(pos=pos0)
+
 
 # yongxi
 # ----------------------------------------------------------------------------------------------------

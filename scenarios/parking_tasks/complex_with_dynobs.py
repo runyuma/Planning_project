@@ -24,22 +24,22 @@ import time
 def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     robots = [
         Prius(mode="vel"),
+        Prius(mode="vel"),
     ]
     env = gym.make(
         "complex-parking-lot-env-v0",
         dt=0.01, robots=robots, render=render
     )
 
-    action = np.array([0., 0.])
-    pos0 = np.array([18., -9, 0])
+    n = env.n() # total length of action
+    ns_per_robot = env.ns_per_robot()
+    pos0 = np.array([np.zeros(n) for n in ns_per_robot])
+    pos0[0][0:2] = np.array([18.,-9.])
+    pos0[1][0:2] = np.array([-25.,15.])
+    action = np.zeros(n)
+    action[2] = .8
     ob = env.reset(pos=pos0)
 
-    dynamicObst1Dict = {
-        "type": "sphere",
-        "geometry": {"trajectory": ['-25 + 0.8 * t', '15.', '2.'], "radius": 2.},
-    }
-    dynamicSphereObst1 = DynamicSphereObstacle(name="simpleSphere", content_dict=dynamicObst1Dict)
-    env.add_obstacle(dynamicSphereObst1)
 
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-0.5,2.6,0.0]],place_height=0.)
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-0.5,-2.6,0.0]],place_height=0.)
@@ -131,7 +131,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
         delta_dot = u[1]
         for j in range(int(test_param["dt"] / 0.01)):
             v = state.v + acc * 0.01
-            action = [v, delta_dot]
+            action = [v, delta_dot,0.8,0]
             if abs(ob['robot_0']['joint_state']['steering']) > 0.4:
                 if np.sign(action[1]) == np.sign(ob['robot_0']['joint_state']['steering']):
                     action[1] = 0
