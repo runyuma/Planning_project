@@ -114,7 +114,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     t = 0
     for i in range(n_steps):
         # refine obstacle and update obs = []
-        obs_x = -25 + t
+        obs_x = -25 + 0.8 * t
         obs = [nonlinear_mpc.obstacle.circle(obs_x, 15, 2)]
         mpc.update_obstacles(obs)
         u, ref, x_pred = mpc.control()
@@ -123,7 +123,12 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
         for j in range(int(test_param["dt"] / 0.01)):
             v = state.v + acc * 0.01
             action = [v, delta_dot]
+            if abs(ob['robot_0']['joint_state']['steering']) > 0.4:
+                if np.sign(action[1]) == np.sign(ob['robot_0']['joint_state']['steering']):
+                    action[1] = 0
+                    print("modified")
             ob, _, _, _ = env.step(action)
+            print(state.delta)
             state.get_state(ob)
             t+=0.01
                 # time.sleep(0.01)

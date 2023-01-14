@@ -30,9 +30,11 @@ class mpc_controller():
             yref = np.zeros(7)
             yref[:5] = np.array(ref[:, j])
             self.acados_solver.set(j, "yref", yref)
+        # print(self.state.delta)
         # solve
         self.acados_solver.set(N, "yref", np.array(ref[:, N]))
         status = self.acados_solver.solve()
+        print(status)
         if status != 0:
             print("wrong")
             # print("acados returned status {} in closed loop iteration {}.".format(status, i))
