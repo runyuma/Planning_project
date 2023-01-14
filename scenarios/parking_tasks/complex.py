@@ -10,6 +10,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
 from obstacled_environments.complex_parking_lot import urdf_complex_env
 from obstacled_environments.common.prius import Prius
 from obstacled_environments.common.generic_urdf import GenericUrdfReacher
+from obstacled_environments.common.my_staticSubGoal import StaticSubGoal, GlobalStaticSubGoal
 import numpy as np
 from nonlinear_mpc.acados_settings import *
 import nonlinear_mpc.bicycle_model
@@ -73,8 +74,26 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-13.5,-15.5,0.0]],place_height=0.)
     
     env.add_walls()
-    # from obstacled_environments.simple_parking_lot.scene_objects.goal import splineGoal
-    # env.add_goal(splineGoal)
+# ----------------------------------------------------------------------------------------------------
+    MPC_PRED_LEN = 12
+    obs_pred = np.zeros((MPC_PRED_LEN,3))
+    mpc_preds_list = []
+    goals = []
+    goalids = []
+
+    for i in range(MPC_PRED_LEN):
+        goal1Dict = {
+            "weight": 1.0, "is_primary_goal": True, 'indices': [0, 1, 2], 'parent_link': 0, 'child_link': 3,
+            'desired_position': [0., 0, 0.], 'epsilon': 0.2, 'type': "staticSubGoal", 
+        }
+        mpc_preds_list.append(goal1Dict)
+
+        goal = StaticSubGoal(name="goal"+str(i), content_dict=goal1Dict)
+        goals.append(goal)
+    for i in range(MPC_PRED_LEN):
+        goalid = env.add_goal_withreturn(goals[i])
+        goalids.append(goalid)
+# ----------------------------------------------------------------------------------------------------
 
     print(f"Initial observation : {ob}")
     history = []
@@ -109,17 +128,34 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     Nsim = int(T * N / Tf)
     state.get_state(ob)
     obs = []
-    obs.append(nonlinear_mpc.obstacle.circle(0, 15, 2))
+    # obs.append(nonlinear_mpc.obstacle.circle(0, 15, 2))
     mpc = mpc_controller(hybridastar_path, test_param, state, speed_profile,obs)
     t = 0
+
+    for i in range(len(hybridastar_path.x)):
+        goal2Dict = {
+            "weight": 1.0, "is_primary_goal": False, 'indices': [0, 1, 2], 'parent_link': 0, 'child_link': 3,
+            'desired_position': [hybridastar_path.x[i], hybridastar_path.y[i], 0.], 'epsilon': 0.5, 'type': "staticSubGoal", 
+        }
+        goal = GlobalStaticSubGoal(name="global_goal"+str(i), content_dict=goal2Dict)
+        env.add_goal(goal)
     for i in range(n_steps):
         # refine obstacle and update obs = []
-        obs_x = -25 + 0.8 * t
-        obs = [nonlinear_mpc.obstacle.circle(obs_x, 15, 2)]
+        # obs_x = -25 + 0.8 * t
+        # obs = [nonlinear_mpc.obstacle.circle(obs_x, 15, 2)]
         # obs_x = 22 - 1 * t
         # obs = [nonlinear_mpc.obstacle.circle(obs_x, 14, 2)]
-        mpc.update_obstacles(obs)
+        # mpc.update_obstacles(obs)
         u, ref, x_pred = mpc.control()
+# ----------------------------------------------------------------------------------------------------
+        # dummy update new predictions
+        # update the goal dictionary used for
+        for j in range(MPC_PRED_LEN):
+            obs_pred[j][0] = x_pred[j][0]
+            obs_pred[j][1] = x_pred[j][1]
+            goals[j].update_position(obs_pred[j].tolist())
+            env.update_goal(goals[j],goalids[j])
+# ----------------------------------------------------------------------------------------------------
         acc = u[0]
         delta_dot = u[1]
         for j in range(int(test_param["dt"] / 0.01)):

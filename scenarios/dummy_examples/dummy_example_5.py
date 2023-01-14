@@ -13,9 +13,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)) +
 from obstacled_environments.simple_parking_lot import urdf_simple_env
 from obstacled_environments.common.prius import Prius
 from obstacled_environments.common.generic_urdf import GenericUrdfReacher
+from MotionPlanningEnv.dynamicSphereObstacle import DynamicSphereObstacle
 import numpy as np
-from MotionPlanningGoal.staticSubGoal import StaticSubGoal
-from MotionPlanningGoal.dynamicSubGoal import DynamicSubGoal
+from obstacled_environments.common.my_staticSubGoal import StaticSubGoal, GlobalStaticSubGoal
 
 def run_prius(n_steps=1000, render=True, goal=True, obstacles=True):
     robots = [
@@ -32,6 +32,13 @@ def run_prius(n_steps=1000, render=True, goal=True, obstacles=True):
 
 # yongxi
 # ----------------------------------------------------------------------------------------------------
+    dynamicObst1Dict = {
+        "type": "sphere",
+        "geometry": {"trajectory": ['-25 + 0.8 * t', '1.', '1.'], "radius": 2.},
+    }
+    dynamicSphereObst1 = DynamicSphereObstacle(name="simpleSphere", content_dict=dynamicObst1Dict)
+    env.add_obstacle(dynamicSphereObst1)
+
     x_pred = np.array([[1.,1.,0.1],[2.,2.,0.1],[3.,3.,0.1],[4.,4.,0.1]])
     MPC_PRED_LEN = 4
     mpc_preds_list = []
@@ -45,7 +52,7 @@ def run_prius(n_steps=1000, render=True, goal=True, obstacles=True):
         }
         mpc_preds_list.append(goal1Dict)
 
-        goal = StaticSubGoal(name="goal"+str(i), content_dict=goal1Dict)
+        goal = GlobalStaticSubGoal(name="goal"+str(i), content_dict=goal1Dict)
         goals.append(goal)
     for i in range(MPC_PRED_LEN):
         goalid = env.add_goal_withreturn(goals[i])
