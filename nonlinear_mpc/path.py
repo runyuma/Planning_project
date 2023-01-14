@@ -206,10 +206,12 @@ def get_reftraj(robot_state,ref_path,vel_profile,param):
     dist_move = 0.0
     approx_vel = robot_state.v
     approx_acc = param["approximate_acc"]
+    dist_move += max(abs(approx_vel) * dt, start_vel * dt)
     for i in range(steering_time, N + 1):
 
-        dist_move += max(abs(approx_vel) * dt,start_vel*dt)
+        # dist_move += max(abs(approx_vel) * dt,start_vel*dt)
         ind_move = int(round(dist_move / d_dist))
+
         index = min(ind + ind_move, length - 1)
 
         z_ref[0, i] = ref_path.cx[index]
@@ -217,6 +219,7 @@ def get_reftraj(robot_state,ref_path,vel_profile,param):
         z_ref[2, i] = vel_profile[index]
         z_ref[3, i] = ref_path.cyaw[index]
         z_ref[4, i] = ref_path.ck[index]*np.sign(vel_profile[index])*param["L"] # todo reference curvature
+        dist_move += max(abs(vel_profile[index]) * dt, start_vel * dt)
         if abs(vel_profile[index]-approx_vel) <= approx_acc*dt:
             approx_vel = vel_profile[index]
         else:

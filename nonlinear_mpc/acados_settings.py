@@ -74,24 +74,23 @@ def acados_settings(Tf, N,initial_state,obstacle_num):
     ocp.constraints.C_e = constraint.C
     ocp.constraints.lg_e = constraint.lg
     ocp.constraints.ug_e = constraint.ug
+    ng = obstacle_num * 2
+    ocp.constraints.idxsg = np.array(range(ng))
+    ns = ng
+    ocp.cost.zl = 100 * np.ones((ns,))
+    ocp.cost.zu = 100 * np.ones((ns,))
+    ocp.cost.Zl = 100 * np.ones((ns,))
+    ocp.cost.Zu = 100 * np.ones((ns,))
 
     nsh = constraint.expr.shape[0]
     ocp.constraints.lh = np.array(
         [
-            -1000,
-            -1000,
-            -1000,
-            -1000,
             model.v_min,
             model.delta_min,
         ]
     )
     ocp.constraints.uh = np.array(
         [
-            1000,
-            1000,
-            1000,
-            1000,
             model.v_max,
             model.delta_max,
         ]

@@ -42,8 +42,8 @@ def bicycle_model(initial_state,constraint_num):
     model.v_min = -5.0
     model.v_max = 10.0
 
-    model.delta_min = -0.40  # minimum steering angle [rad]
-    model.delta_max = 0.40  # maximum steering angle [rad]
+    model.delta_min = -0.50  # minimum steering angle [rad]
+    model.delta_max = 0.50  # maximum steering angle [rad]
 
     # input bounds
     model.derdelta_min = -0.6  # minimum change rate of stering angle [rad/s]
@@ -59,10 +59,6 @@ def bicycle_model(initial_state,constraint_num):
     p = vertcat([])
 
     constraint.expr = vertcat(
-        x_+cos(theta)*disc_offset,
-        y_+sin(theta)*disc_offset,
-        x_-cos(theta)*disc_offset,
-        y_-sin(theta)*disc_offset,
         v,
         delta)
     constraint.C = np.zeros((constraint_num*2, 5))
