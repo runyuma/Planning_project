@@ -135,7 +135,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     for i in range(len(hybridastar_path.x)):
         goal2Dict = {
             "weight": 1.0, "is_primary_goal": False, 'indices': [0, 1, 2], 'parent_link': 0, 'child_link': 3,
-            'desired_position': [hybridastar_path.x[i], hybridastar_path.y[i], 0.], 'epsilon': 0.5, 'type': "staticSubGoal", 
+            'desired_position': [hybridastar_path.cx[i], hybridastar_path.cy[i], 0.], 'epsilon': 0.5, 'type': "staticSubGoal", 
         }
         goal = GlobalStaticSubGoal(name="global_goal"+str(i), content_dict=goal2Dict)
         env.add_goal(goal)
