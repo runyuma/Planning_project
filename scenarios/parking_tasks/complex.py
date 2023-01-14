@@ -132,7 +132,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     mpc = mpc_controller(hybridastar_path, test_param, state, speed_profile,obs)
     t = 0
 
-    for i in range(len(hybridastar_path.x)):
+    for i in range(len(hybridastar_path.cx)):
         goal2Dict = {
             "weight": 1.0, "is_primary_goal": False, 'indices': [0, 1, 2], 'parent_link': 0, 'child_link': 3,
             'desired_position': [hybridastar_path.cx[i], hybridastar_path.cy[i], 0.], 'epsilon': 0.5, 'type': "staticSubGoal", 
