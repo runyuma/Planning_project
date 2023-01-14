@@ -1,3 +1,6 @@
+# This dummy example tests modification to the original project
+# that enables arbitrary dynamic goals in the main loop
+
 import gym
 import sys
 import os #导入os模块
@@ -14,7 +17,7 @@ import numpy as np
 from MotionPlanningGoal.staticSubGoal import StaticSubGoal
 from MotionPlanningGoal.dynamicSubGoal import DynamicSubGoal
 
-def run_prius(n_steps=1000, render=False, goal=True, obstacles=True):
+def run_prius(n_steps=1000, render=True, goal=True, obstacles=True):
     robots = [
         Prius(mode="vel"),
     ]
@@ -33,6 +36,7 @@ def run_prius(n_steps=1000, render=False, goal=True, obstacles=True):
     MPC_PRED_LEN = 4
     mpc_preds_list = []
     goals = []
+    goalids = []
 
     for i in range(MPC_PRED_LEN):
         goal1Dict = {
@@ -44,16 +48,8 @@ def run_prius(n_steps=1000, render=False, goal=True, obstacles=True):
         goal = StaticSubGoal(name="goal"+str(i), content_dict=goal1Dict)
         goals.append(goal)
     for i in range(MPC_PRED_LEN):
-        env.add_goal(goals[i])
-    # test_pos_dict = {'step1':np.array([1.,1.]),'step2':np.array([2.,2.]),'step2':np.array([3.,3.])}
-
-    # mpcGoalDict = {
-    #     "weight": 1.0, "is_primary_goal": True, 'indices': [0, 1, 2], 'parent_link': 0, 'child_link': 3,
-    #     'trajectory': test_pos_dict, 'epsilon': 0.08, 'type': "selfDefinedSubgoal", 
-    # }
-
-    # our_mpc_goal = DynamicSubGoal(name='mpc_goal',content_dict=mpcGoalDict)
-    # env.add_goal(our_mpc_goal)
+        goalid = env.add_goal_withreturn(goals[i])
+        goalids.append(goalid)
 # ----------------------------------------------------------------------------------------------------
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,2.0,2.0],poses_2d=[[3.0,3.0,0.0]],place_height=0.)
 
@@ -64,10 +60,10 @@ def run_prius(n_steps=1000, render=False, goal=True, obstacles=True):
 # ----------------------------------------------------------------------------------------------------
         # dummy update new predictions
         # update the goal dictionary used for
-        for i in range(MPC_PRED_LEN):
-            x_pred[i][0] += 0.1
-            goals[i].update_position(x_pred[i].tolist())
-            # env.add_goal(goals[i])
+        for j in range(MPC_PRED_LEN):
+            x_pred[j][0] = i*0.01
+            goals[j].update_position(x_pred[j].tolist())
+            env.update_goal(goals[j],goalids[j])
 # ----------------------------------------------------------------------------------------------------
 
         ob, _, _, _ = env.step(action)
