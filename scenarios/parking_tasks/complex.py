@@ -116,6 +116,8 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
         # refine obstacle and update obs = []
         obs_x = -25 + 0.8 * t
         obs = [nonlinear_mpc.obstacle.circle(obs_x, 15, 2)]
+        # obs_x = 22 - 1 * t
+        # obs = [nonlinear_mpc.obstacle.circle(obs_x, 14, 2)]
         mpc.update_obstacles(obs)
         u, ref, x_pred = mpc.control()
         acc = u[0]

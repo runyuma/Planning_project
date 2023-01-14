@@ -100,7 +100,7 @@ def acados_settings(Tf, N,initial_state,obstacle_num):
     # ocp.constraints.idxsh = np.array(range(nsh))
 
     # setting path
-    acados_source_path = "/home/ziyu/acados/acados"
+    acados_source_path = "/home/marunyu/study/planning/acados"
     ocp.acados_include_path = acados_source_path + '/include'
     ocp.acados_lib_path = acados_source_path + '/lib'
 
