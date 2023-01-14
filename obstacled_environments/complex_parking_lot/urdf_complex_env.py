@@ -310,6 +310,31 @@ class ComplexUrdfEnv(gym.Env):
         goal_id = goal.add_to_bullet(p)
         self._goals[goal_id] = goal
 
+# yongxi
+    def update_goal(self, goal, goal_id) -> None:
+        """Update goal to the simulation environment.
+
+        Parameters
+        ----------
+
+        goal_id: the identify number in pybullet
+        goal: Goal from MotionPlanningGoal
+        """
+        self._goals[goal_id] = goal
+
+# yongxi
+    def add_goal_withreturn(self, goal: GoalComposition):
+        """Adds goal to the simulation environment.
+
+        Parameters
+        ----------
+
+        goal: Goal from MotionPlanningGoal
+        """
+        goal_id = goal.add_to_bullet(p)
+        self._goals[goal_id] = goal
+        return goal_id
+
     def add_walls(
         self,
         dim=np.array([0.2, 50, 0.5]),
