@@ -36,7 +36,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     ns_per_robot = env.ns_per_robot()
     pos0 = np.array([np.zeros(n) for n in ns_per_robot])
     pos0[0][0:2] = np.array([18.,-9.])
-    pos0[1][0:2] = np.array([-25.,15.])
+    pos0[1][0:2] = np.array([-23.,15.])
     action = np.zeros(n)
     action[2] = .8
     ob = env.reset(pos=pos0)
@@ -149,8 +149,8 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
             env.add_goal(goal)
     for i in range(n_steps):
         # refine obstacle and update obs = []
-        obs_x = -25 + 0.8 * t
-        obs = [nonlinear_mpc.obstacle.circle(obs_x, 15, 2)]
+        obs_x = -22 + 1.25*0.8 * t
+        obs = [nonlinear_mpc.obstacle.circle(obs_x, 14.5, 2)]
         # obs_x = 22 - 1 * t
         # obs = [nonlinear_mpc.obstacle.circle(obs_x, 14, 2)]
         mpc.update_obstacles(obs)
@@ -168,7 +168,8 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
         delta_dot = u[1]
         for j in range(int(test_param["dt"] / 0.01)):
             v = state.v + acc * 0.01
-            action = [v, delta_dot,0.8,0]
+            # action = [v, delta_dot,0.8,0]
+            action = [v, delta_dot, 1, 0]
             if abs(ob['robot_0']['joint_state']['steering']) > 0.4:
                 if np.sign(action[1]) == np.sign(ob['robot_0']['joint_state']['steering']):
                     action[1] = 0
