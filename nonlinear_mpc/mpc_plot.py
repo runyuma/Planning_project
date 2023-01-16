@@ -1,5 +1,30 @@
 import matplotlib.pyplot as plt
 import numpy as np
+
+def plot_v(v_list):
+    n = range(len(v_list))
+    t = [i*0.01 for i in n]
+    plt.plot(t, v_list)
+    plt.xlabel('t/(s)')
+    plt.ylabel('v/(m/s)')
+    
+def plot_curve(x_ref, y_ref, x_list, y_list, obs_x_list):
+    obs_y = [15] * len(obs_x_list)
+    print(obs_y)
+    plt.plot(x_ref, y_ref, label='ref line by Hybrid A*')
+    plt.plot(x_list, y_list, label='car driving path')
+    plt.plot(obs_x_list, obs_y, label="obstacle path", color='k')
+    plt.xlabel('x/(m)')
+    plt.ylabel('y/(m)')
+    plt.legend()
+
+def plot_curve(x_ref, y_ref, x_list, y_list):
+    plt.plot(x_ref, y_ref, label='ref line by Hybrid A*')
+    plt.plot(x_list, y_list, label='car driving path')
+    plt.xlabel('x/(m)')
+    plt.ylabel('y/(m)')
+    plt.legend()
+
 def plot_velprof(x,y,yaw,speed_prof):
     lenth = len(x)
     for i in range(lenth-1):

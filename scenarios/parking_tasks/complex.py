@@ -140,6 +140,10 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
             }
             goal = GlobalStaticSubGoal(name="global_goal"+str(i), content_dict=goal2Dict)
             env.add_goal(goal)
+    state_x_list = []
+    state_y_list = []
+    obs_x_list = []
+    v_list = []
     for i in range(n_steps):
         # refine obstacle and update obs = []
         # obs_x = -25 + 0.8 * t
@@ -147,6 +151,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
         obs_x = 22 - 1 * t
         obs = [nonlinear_mpc.obstacle.circle(obs_x, 14, 2)]
         mpc.update_obstacles(obs)
+        # obs_x_list.append(obs_x)
         u, ref, x_pred = mpc.control()
 # ----------------------------------------------------------------------------------------------------
         # dummy update new predictions
@@ -169,9 +174,15 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
             ob, _, _, _ = env.step(action)
             # print(state.delta)
             state.get_state(ob)
+            state_x_list.append(state.x)
+            state_y_list.append(state.y)
+            v_list.append(state.v)
             t+=0.01
                 # time.sleep(0.01)
         mpc.visualize(ref, x_pred, test_param["xlim "], test_param["ylim "])
+        # mpc.visualize_curve(state_x_list, state_y_list, obs_x_list, test_param["xlim "], test_param["ylim "])
+        # mpc.visualize_curve(state_x_list, state_y_list, test_param["xlim "], test_param["ylim "])
+        # mpc.visualize_v(v_list)
         history.append(ob)
     env.close()
     return history

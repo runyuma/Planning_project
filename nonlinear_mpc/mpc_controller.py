@@ -94,3 +94,27 @@ class mpc_controller():
         plt.ylim(ylim[0], ylim[1])
         plt.title("NonLinear MPC, " + "v = " + str(self.state.v) + "\n delta = " + str(self.state.delta))
         plt.pause(0.01)
+
+    def visualize_curve(self, x_list, y_list, obs_x_list, xlim,ylim):
+        mpc_plot.plot_curve(self.astarpath.cx, self.astarpath.cy, x_list, y_list, obs_x_list)
+        plt.xlim(xlim[0], xlim[1])
+        plt.ylim(ylim[0], ylim[1])
+        # plt.title("The curves when encountering dynamic obstacle")
+        # plt.title("The curves when following up dynamic obstacle")
+        plt.pause(0.01)
+
+    def visualize_curve(self, x_list, y_list, xlim,ylim):
+        mpc_plot.plot_curve(self.astarpath.cx, self.astarpath.cy, x_list, y_list)
+        plt.xlim(xlim[0], xlim[1])
+        plt.ylim(ylim[0], ylim[1])
+        plt.title("The curves without unexpected obstacle")
+        # plt.title("The curves with static obstacle")
+        plt.pause(0.01)
+
+    def visualize_v(self, v_list):
+        mpc_plot.plot_v(v_list)
+        # plt.title("The velocity without unexpected obstacle")
+        # plt.title("The velocity with static obstacle")
+        # plt.title("The velocity when encountering dynamic obstacle")
+        plt.title("The velocity when following up dynamic obstacle")
+        plt.pause(0.01)
