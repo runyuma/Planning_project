@@ -28,9 +28,9 @@ To check whether you have successfully install the simulation environment, you c
 python point_robot.py
 ```
 
-##Install acados package
+## Install acados package
 
-###Install acados
+### Install acados
 
 We here assume you are using the Linux system and you have cmake installed on your system. Please first clone acados and its submodules by running:
 
@@ -46,7 +46,7 @@ cd build
 cmake -DACADOS_WITH_QPOASES=ON ..
 make install -j4
 ```
-###Install acados python interface
+### Install acados python interface
 
 Please first enter the virtual environment created previously,
 ```
