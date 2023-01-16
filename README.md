@@ -25,7 +25,7 @@ The added functionalities by us are:
 - Hybrid A* path planner
 - Nonlinear MPC formulation
 
-For more details, please refer to our [report]().
+For more details, please refer to our [report](https://github.com/runyuma/Planning_project/blob/main/ro47005_pdm_proj.pdf).
 
 ## Directories
 - `hybrid_astar`              : where hybrid A* path planner is implemented
