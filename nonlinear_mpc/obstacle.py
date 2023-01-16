@@ -139,7 +139,7 @@ class circle:
             x2 = self.x + 10
             y1 = -(h[2] + h[0] * x1) / h[1]
             y2 = -(h[2] + h[0] * x2) / h[1]
-            plt.plot([x1, x2], [y1, y2], "r")
+            plt.plot([x1, x2], [y1, y2], "g")
 def pi_2_pi(angle):
     return (angle + np.pi) % (2 * np.pi) - np.pi
 if __name__ == "__main__":

@@ -243,9 +243,10 @@ class ComplexUrdfEnv(gym.Env):
         ob = self._get_ob()
 
         reward = 1.0
-
+        p.resetDebugVisualizerCamera(10, 90, -30, [ob["robot_0"]["joint_state"]["position"][0], ob["robot_0"]["joint_state"]["position"][1], 7.5])
         if self._render:
             self.render()
+
         return ob, reward, self._done, {}
 
     def _get_ob(self) -> dict:
@@ -531,7 +532,7 @@ class ComplexUrdfEnv(gym.Env):
             self.set_spaces()
             self._space_set = True
         self.plane = LargePlane()
-        p.setGravity(0, 0, -10.0)
+        p.setGravity(0, 0, -7.0)
         p.stepSimulation()
         return self._get_ob()
 

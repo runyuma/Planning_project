@@ -44,11 +44,11 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-0.5,2.6,0.0]],place_height=0.)
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-0.5,-2.6,0.0]],place_height=0.)
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-3.0,-2.6,0.0]],place_height=0.)
-    env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-7.5,2.6,0.0]],place_height=0.)
-    env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-8.0,-2.6,0.0]],place_height=0.)
+    env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-8.5,2.6,0.0]],place_height=0.)
+    env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-8.,-2.6,0.0]],place_height=0.)
 
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-10.1,-3.0,0.0]],place_height=0.)
-    env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-12.5,2.5,0.0]],place_height=0.)
+    env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-14.5,2.5,0.0]],place_height=0.)
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-16.5,2.5,0.0]],place_height=0.)
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-19.0,-2.5,0.0]],place_height=0.)
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-21.0,-2.6,0.0]],place_height=0.)
@@ -61,8 +61,8 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
 
     env.add_shapes(shape_type='GEOM_BOX',dim=[3.0,18.0,1.0],poses_2d=[[22.5,-9.0,0.0]],place_height=0.)
     env.add_shapes(shape_type='GEOM_BOX',dim=[4.0,2.0,1.0],poses_2d=[[19.0,-5.0,0.0]],place_height=0.)
-    env.add_shapes(shape_type='GEOM_BOX',dim=[4.0,2.0,1.0],poses_2d=[[19.0,-7.0,0.0]],place_height=0.)
-    env.add_shapes(shape_type='GEOM_BOX',dim=[4.5,2.0,1.0],poses_2d=[[18.75,-11.5,0.0]],place_height=0.)
+    # env.add_shapes(shape_type='GEOM_BOX',dim=[4.0,2.0,1.0],poses_2d=[[19.0,-7.5,0.0]],place_height=0.)
+    env.add_shapes(shape_type='GEOM_BOX',dim=[4.5,2.0,1.0],poses_2d=[[18.75,-12.,0.0]],place_height=0.)
     env.add_shapes(shape_type='GEOM_BOX',dim=[4.5,2.0,1.0],poses_2d=[[18.75,-14.0,0.0]],place_height=0.)
     
     env.add_shapes(shape_type='GEOM_BOX',dim=[4.5,2.0,1.0],poses_2d=[[18.75,-16.5,0.0]],place_height=0.)
@@ -74,7 +74,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-18.0,16.5+OFFSET,0.0]],place_height=0.)
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-20.5,16.5+OFFSET,0.0]],place_height=0.)
     env.add_shapes(shape_type='GEOM_BOX',dim=[2.0,5.0,1.0],poses_2d=[[-22.5,16.5+OFFSET,0.0]],place_height=0.)
-    env.add_shapes(shape_type='GEOM_BOX',dim=[10.0,2.0,1.0],poses_2d=[[3.0,-12.0,0.0]],place_height=0.)
+    env.add_shapes(shape_type='GEOM_BOX',dim=[10.0,2.0,1.0],poses_2d=[[1.0,-12.0,0.0]],place_height=0.)
     env.add_shapes(shape_type='GEOM_BOX',dim=[6.0,2.0,1.0],poses_2d=[[1.0,-17.0,0.0]],place_height=0.)
 
     env.add_shapes(shape_type='GEOM_BOX',dim=[1.0,7.0,1.0],poses_2d=[[-8.5,-14.5,0.0]],place_height=0.)
@@ -123,7 +123,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
         # refine obstacle and update obs = []
         # obs_x = -25 + 0.8 * t
         # obs = [nonlinear_mpc.obstacle.circle(obs_x, 15, 2)]
-        obs_x = 22 - 1 * t
+        obs_x = 23 - 1 * t
         obs = [nonlinear_mpc.obstacle.circle(obs_x, 14, 2)]
         mpc.update_obstacles(obs)
         u, ref, x_pred = mpc.control()
@@ -131,7 +131,7 @@ def run_prius(n_steps=10000, render=False, goal=True, obstacles=True):
         delta_dot = u[1]
         for j in range(int(test_param["dt"] / 0.01)):
             v = state.v + acc * 0.01
-            if t>=8:
+            if t>=9:
                 action = [v, delta_dot,1.,0]
             else:
                 action = [v, delta_dot,0.,0]

@@ -54,6 +54,7 @@ ignored for bicycle models."
             basePosition=spawn_position,
             baseOrientation=base_orientation,
             flags=p.URDF_USE_SELF_COLLISION_EXCLUDE_PARENT,
+            # globalScaling=1,
             globalScaling=self._scaling,
         )
         self.set_joint_names()

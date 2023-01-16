@@ -92,5 +92,5 @@ class mpc_controller():
         mpc_plot.draw_car(self.state.x, self.state.y, self.state.yaw, self.state.delta)
         plt.xlim(xlim[0], xlim[1])
         plt.ylim(ylim[0], ylim[1])
-        plt.title("Linear MPC, " + "v = " + str(self.state.v) + "\n delta = " + str(self.state.delta))
+        plt.title("NonLinear MPC, " + "v = " + str(self.state.v) + "\n delta = " + str(self.state.delta))
         plt.pause(0.01)
